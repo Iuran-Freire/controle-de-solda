@@ -7,6 +7,8 @@ Data: 02/09/2026.
 - API local/D1: cadastro, persistência, reenvio idempotente, bloqueio de duplicidade, imutabilidade por ID, validação de NC e rejeição de origem externa aprovados. Fixtures removidas do banco local após os testes.
 - Offline: teste do service worker gerado com assets reais da compilação. Instalou 13 arquivos, abriu a página e carregou JavaScript com rede simulada indisponível; requisições à API não são interceptadas pelo cache.
 - Build Worker + cliente + manifesto offline concluído.
+- Versão compilada conectada ao banco local com `--persist-to .wrangler/state`; consulta à API retornou HTTP 200.
+- Lint da aplicação concluído sem erros; permanecem dois avisos consultivos de React Compiler no hook de inicialização.
 - Migração inicial gerada pelo Drizzle, inspecionada e aplicada ao D1 local.
 - Auditoria de dependências: corrigidos os alertas altos do scaffold (React, Vinext, Vite e runtime Cloudflare). Permanecem 4 alertas moderados na cadeia de ferramentas do Drizzle; não foi aplicada regressão de versão sugerida pelo audit.
 - Lint considera o código da aplicação; componentes shadcn gerados e hook gerado estão excluídos. Regra React Compiler é consultiva porque o projeto não usa esse compilador.
@@ -20,3 +22,7 @@ WebMCP opcional `start_station_inspection` foi implementado com detecção de su
 Login corporativo, permissões por função, assinatura autenticada, correções com auditoria e política de backup/retencão ainda precisam da integração com a TI. A identificação atual é declarada. O piloto não deve ser liberado publicamente.
 
 Critérios e unidades transcritos das fotos precisam da confirmação da qualidade. As cartas I-MR usam limites estimados, não uma linha de base homologada.
+
+## Entrega local e publicação
+
+O projeto foi aberto no VS Code e a versão local ficou disponível em http://localhost:3000. A publicação externa não foi realizada: a revisão automática rejeitou o envio do código ao repositório privado de Sites por falta de autorização explícita para esse destino. O cadastro privado do site existe, mas não há versão publicada. Não foram enviados código nem registros de inspeção nessa tentativa bloqueada.
