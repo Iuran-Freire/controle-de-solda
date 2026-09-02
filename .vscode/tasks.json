@@ -1,0 +1,1 @@
+{"version":"2.0.0","tasks":[{"label":"Iniciar sistema","type":"shell","command":"npm.cmd run dev","isBackground":true,"problemMatcher":[]},{"label":"Verificar projeto","type":"shell","command":"npm.cmd run check","problemMatcher":[]},{"label":"Gerar versão offline","type":"shell","command":"npm.cmd run build","problemMatcher":[]}]}

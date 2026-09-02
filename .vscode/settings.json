@@ -1,0 +1,1 @@
+{"editor.formatOnSave":true,"editor.tabSize":2,"files.encoding":"utf8","files.exclude":{"**/node_modules":true,"**/.wrangler":true,"**/dist":true},"search.exclude":{"**/node_modules":true,"**/dist":true,"**/.wrangler":true}}
