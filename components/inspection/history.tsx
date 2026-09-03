@@ -1,6 +1,7 @@
 'use client';
 import { useState } from 'react';
 import { Download } from 'lucide-react';
+import { ExportPdf } from './export-pdf';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { NativeSelect } from '@/components/ui/native-select';
@@ -212,62 +213,65 @@ export function HistoryView({
     );
   }
   return (
-    <Panel
-      title="Histórico de verificações"
-      aside={
-        <Button variant="outline" onClick={csv} disabled={!filtered.length}>
-          <Download />
-          Exportar CSV
-        </Button>
-      }
-    >
-      <div className="filterbar">
-        <div className="toolbar">
-          <label className="field">
-            Buscar
-            <Input
-              placeholder="Estação ou inspetor"
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-            />
-          </label>
-          <label className="field">
-            Linha
-            <NativeSelect
-              value={line}
-              onChange={(e) => setLine(e.target.value)}
-            >
-              <option value="">Todas as linhas</option>
-              {[...new Set(stations.map((s) => s.data.line))]
-                .sort()
-                .map((l) => (
-                  <option key={l}>{l}</option>
-                ))}
-            </NativeSelect>
-          </label>
-          <label className="field">
-            Data de produção
-            <Input
-              type="date"
-              value={date}
-              onChange={(e) => setDate(e.target.value)}
-            />
-          </label>
-          <label className="field">
-            Resultado
-            <NativeSelect
-              value={result}
-              onChange={(e) => setResult(e.target.value)}
-            >
-              <option value="">Todos</option>
-              <option value="OK">Conforme</option>
-              <option value="NC">Não conforme</option>
-            </NativeSelect>
-          </label>
+    <>
+      <ExportPdf rows={rows} stations={stations} />
+      <Panel
+        title="Histórico de verificações"
+        aside={
+          <Button variant="outline" onClick={csv} disabled={!filtered.length}>
+            <Download />
+            Exportar CSV
+          </Button>
+        }
+      >
+        <div className="filterbar">
+          <div className="toolbar">
+            <label className="field">
+              Buscar
+              <Input
+                placeholder="Estação ou inspetor"
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+              />
+            </label>
+            <label className="field">
+              Linha
+              <NativeSelect
+                value={line}
+                onChange={(e) => setLine(e.target.value)}
+              >
+                <option value="">Todas as linhas</option>
+                {[...new Set(stations.map((s) => s.data.line))]
+                  .sort()
+                  .map((l) => (
+                    <option key={l}>{l}</option>
+                  ))}
+              </NativeSelect>
+            </label>
+            <label className="field">
+              Data de produção
+              <Input
+                type="date"
+                value={date}
+                onChange={(e) => setDate(e.target.value)}
+              />
+            </label>
+            <label className="field">
+              Resultado
+              <NativeSelect
+                value={result}
+                onChange={(e) => setResult(e.target.value)}
+              >
+                <option value="">Todos</option>
+                <option value="OK">Conforme</option>
+                <option value="NC">Não conforme</option>
+              </NativeSelect>
+            </label>
+          </div>
+          <small className="text-muted">{filtered.length} registro(s)</small>
         </div>
-        <small className="text-muted">{filtered.length} registro(s)</small>
-      </div>
-      <InspectionTable rows={filtered} stations={stations} />
-    </Panel>
+        <InspectionTable rows={filtered} stations={stations} />
+      </Panel>
+    </>
   );
 }

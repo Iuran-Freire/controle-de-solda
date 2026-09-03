@@ -15,7 +15,7 @@ async function files(path) {
 const assets = (await files(root))
   .filter(
     (p) =>
-      /\.(js|css|woff2?|svg|webmanifest|png)$/.test(p) &&
+      /\.(js|css|woff2?|ttf|svg|webmanifest|png)$/.test(p) &&
       !p.endsWith('sw.js') &&
       !p.endsWith('og.png'),
   )
