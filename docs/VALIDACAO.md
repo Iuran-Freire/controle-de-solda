@@ -27,4 +27,6 @@ Critérios e unidades transcritos das fotos precisam da confirmação da qualida
 
 ## Entrega local e publicação
 
-O projeto foi aberto no VS Code e a versão local ficou disponível em http://localhost:3000. A publicação externa não foi realizada: a revisão automática rejeitou o envio do código ao repositório privado de Sites por falta de autorização explícita para esse destino. O cadastro privado do site existe, mas não há versão publicada. Não foram enviados código nem registros de inspeção nessa tentativa bloqueada.
+O projeto foi aberto no VS Code e a versão local ficou disponível em http://localhost:3000. A primeira tentativa de publicação foi bloqueada pela revisão automática. Após autorização explícita do usuário para enviar o código ao repositório privado Sites e hospedar com acesso restrito à sua conta, a versão 1 foi publicada em https://inventus-controle-solda.efdvdf.chatgpt.site em 02/09/2026.
+
+As verificações HTTP autenticadas retornaram 200 para a página, manifest, service worker e API de postos; a API sem autenticação retornou 401. O teste local do worker validou 14 assets reais e a abertura simulada sem rede. Não houve teste em Android físico. O acesso continua restrito ao proprietário; os convites externos estão indisponíveis nesta conta. Registros locais de inspeção não foram transferidos para a base hospedada.

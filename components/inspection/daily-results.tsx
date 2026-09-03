@@ -18,6 +18,7 @@ import { NativeSelect } from '@/components/ui/native-select';
 import { ChartContainer } from '@/components/ui/chart';
 import { Panel, Empty } from './shared';
 import { dailyResults } from '@/lib/inspection/daily-results';
+import { measurementDomain, chartNumber } from '@/lib/inspection/chart-scale';
 import type { Station, Inspection, LocalRow } from '@/lib/inspection/types';
 export function DailyResults({
   station,
@@ -29,6 +30,7 @@ export function DailyResults({
   const [from, setFrom] = useState(''),
     [to, setTo] = useState(''),
     [shift, setShift] = useState('');
+  const [includeLimits, setIncludeLimits] = useState(false);
   const invalid = !!from && !!to && from > to;
   const result = dailyResults(rows, station.id, from, to, shift);
   return (
@@ -85,6 +87,24 @@ export function DailyResults({
           />
         ) : (
           <>
+            <label className="field" style={{ marginBottom: 16 }}>
+              Escala dos gráficos de medição
+              <NativeSelect
+                value={includeLimits ? 'limits' : 'measurements'}
+                onChange={(event) =>
+                  setIncludeLimits(event.target.value === 'limits')
+                }
+              >
+                <option value="measurements">
+                  Ajustar aos valores medidos
+                </option>
+                <option value="limits">Mostrar também todos os limites</option>
+              </NativeSelect>
+            </label>
+            <p className="draft-note">
+              A escala ajustada amplia as pequenas variações. Os limites
+              continuam válidos mesmo quando ficam fora da área do gráfico.
+            </p>
             <div className="measurement-grid">
               <section className="measurement-card">
                 <header className="measurement-card-header">
@@ -172,6 +192,15 @@ export function DailyResults({
                       <span className="measurement-unit">{metric.unit}</span>
                     </h3>
                     <p>{metric.title}</p>
+                    <p>
+                      Limites dos registros:{' '}
+                      {metric.limits
+                        .map(
+                          (limit) =>
+                            `${limit === 'tempMin' ? 'mín.' : 'máx.'} ${[...new Set(result.points.map((point) => point[limit]))].map(chartNumber).join(' / ')} ${metric.unit}`,
+                        )
+                        .join(' · ')}
+                    </p>
                   </header>
                   <ChartContainer
                     className="compact-chart"
@@ -193,14 +222,28 @@ export function DailyResults({
                         padding={{ left: 16, right: 16 }}
                       />
                       <YAxis
-                        domain={['auto', 'auto']}
+                        domain={
+                          includeLimits
+                            ? ['auto', 'auto']
+                            : measurementDomain(
+                                result.points.map((point) => point[metric.key]),
+                              )
+                        }
+                        allowDataOverflow={!includeLimits}
+                        tickFormatter={chartNumber}
                         width={48}
                         tickCount={4}
                         tick={{ fontSize: 11 }}
                         tickLine={false}
                         axisLine={false}
                       />
-                      <Tooltip />
+                      <Tooltip
+                        formatter={(value) =>
+                          typeof value === 'number'
+                            ? `${chartNumber(value)} ${metric.unit}`
+                            : value
+                        }
+                      />
                       <Legend wrapperStyle={{ fontSize: 11 }} />
                       {metric.limits.map((limit) => (
                         <Line
