@@ -145,10 +145,10 @@ export function ExportPdf({
             : 'Selecione uma data válida.'}
         </p>
         <p className="draft-note">
-          Inclui os cinco checks, medições, limites e rastreabilidade dos
-          registros disponíveis neste aparelho. Pendências e conflitos ficam
-          identificados. Sincronize antes para obter os dados mais recentes da
-          equipe. Os filtros acima são próprios do PDF.
+          Exporta gráficos de resistência, tensão, temperatura e amplitude por
+          posto, sem a tabela de rastreabilidade. Pendências são incluídas e
+          conflitos ficam fora dos gráficos, com a quantidade informada no PDF.
+          Sincronize antes para obter os dados mais recentes da equipe.
         </p>
         <Button
           onClick={() => void generate()}
