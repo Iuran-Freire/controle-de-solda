@@ -1,6 +1,8 @@
 import { businessKey, resultOf, type Inspection, type Station } from './types';
 const text = (x: unknown, max = 160): x is string =>
   typeof x === 'string' && x.trim().length > 0 && x.length <= max;
+const optionalText = (x: unknown): x is string =>
+  typeof x === 'string' && x.length <= 160;
 const num = (x: unknown, max = 2000): x is number =>
   typeof x === 'number' && Number.isFinite(x) && x >= 0 && x <= max;
 const date = (x: unknown) =>
@@ -13,18 +15,18 @@ export function validateStation(x: unknown): Station {
     !text(s.line) ||
     !text(s.code) ||
     !text(s.model) ||
-    !text(s.instrument) ||
+    !optionalText(s.instrument) ||
     !s.limits ||
     !num(s.limits.min) ||
     !num(s.limits.max) ||
     s.limits.min >= s.limits.max ||
     !num(s.limits.resistance) ||
     !num(s.limits.voltage) ||
-    !text(s.approvedBy) ||
+    !optionalText(s.approvedBy) ||
     !date(s.createdAt)
   )
     throw new Error(
-      'Preencha a identificação, os limites e o responsável pela configuração da estação.',
+      'Preencha a linha, o posto, o modelo e os limites. Campos pendentes devem ficar em branco.',
     );
   return {
     id: s.id,

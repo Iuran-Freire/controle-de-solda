@@ -6,6 +6,7 @@ const baseMetadata: Metadata = {
   description:
     'Verificação de estações de solda, registros offline e acompanhamento da qualidade.',
   manifest: '/manifest.webmanifest',
+  icons: { icon: '/inventus-icon.png', apple: '/inventus-icon.png' },
   openGraph: {
     title: 'Controle de Solda',
     description: 'Inventus Power · Qualidade na linha',

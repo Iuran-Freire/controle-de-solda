@@ -1,5 +1,7 @@
 'use client';
 import { useState, useCallback, useEffect } from 'react';
+import { applyAppUpdate } from '@/lib/offline/app-update';
+import Image from 'next/image';
 import {
   Activity,
   ClipboardCheck,
@@ -29,6 +31,7 @@ import { HistoryView, InspectionTable } from './history';
 import { ControlCharts } from './control-charts';
 import { SyncView } from './sync-view';
 import { Panel } from './shared';
+import { InstallApp } from './install-app';
 import { localDate } from '@/lib/inspection/types';
 import { setting, setSetting } from '@/lib/offline/database';
 type View =
@@ -43,7 +46,7 @@ const NAV = [
   { id: 'overview', label: 'Visão geral', icon: LayoutDashboard },
   { id: 'inspection', label: 'Nova verificação', icon: ClipboardCheck },
   { id: 'history', label: 'Histórico', icon: History },
-  { id: 'charts', label: 'Cartas I-MR', icon: Activity },
+  { id: 'charts', label: 'Resultados e I-MR', icon: Activity },
   { id: 'stations', label: 'Estações', icon: Factory },
   { id: 'sync', label: 'Sincronização', icon: RefreshCw },
   { id: 'settings', label: 'Configurações', icon: Settings2 },
@@ -52,7 +55,7 @@ const descriptions: Record<View, string> = {
   overview: 'Acompanhe as verificações e a qualidade das estações de solda.',
   inspection: 'Registre os resultados da inspeção, mesmo sem conexão.',
   history: 'Rastreabilidade de cada medição, da linha à qualidade.',
-  charts: 'Temperatura e amplitude móvel, estação por estação.',
+  charts: 'Checks por dia e turno, medições e cartas de controle por posto.',
   stations: 'Organize os equipamentos e gere suas etiquetas de identificação.',
   sync: 'Do aparelho para a base central, com confirmação de recebimento.',
   settings: 'Prepare este aparelho para a rotina de inspeção.',
@@ -162,7 +165,15 @@ export function Workspace() {
     <div className="app">
       <aside className={`sidebar ${menu ? 'open' : ''}`}>
         <div className="brand">
-          INVENTUS<span>POWER</span>
+          <Image
+            src="/inventus-power-logo.svg"
+            alt="Inventus Power"
+            width={256}
+            height={64}
+            unoptimized
+            priority
+            className="brand-logo"
+          />
           <small>MANUFACTURING QUALITY</small>
         </div>
         <div className="nav-label">CONTROLE DE SOLDA</div>
@@ -231,7 +242,26 @@ export function Workspace() {
             </button>
           </div>
         </header>
-        <div className="content">
+        <div className={`content ${view === 'charts' ? 'results-page' : ''}`}>
+          {state.updateAvailable && (
+            <div className="notice">
+              <span>
+                Uma nova versão está disponível. Atualize para ver os checks
+                mais recentes.
+              </span>
+              <Button
+                onClick={() =>
+                  void applyAppUpdate().catch(() =>
+                    setToast(
+                      'Não foi possível guardar o rascunho. A tela não foi recarregada.',
+                    ),
+                  )
+                }
+              >
+                Atualizar tela
+              </Button>
+            </div>
+          )}
           <div className="heading">
             <div>
               <p className="eyebrow">CONTROLE DO PROCESSO</p>
@@ -271,6 +301,10 @@ export function Workspace() {
           )}
           {view === 'overview' && (
             <>
+              <InstallApp
+                offlineReady={state.offlineReady}
+                stationCount={state.stations.length}
+              />
               <div className="toolbar" style={{ marginBottom: 22 }}>
                 <label className="field">
                   Linha
@@ -539,9 +573,9 @@ export function Workspace() {
                   <div>
                     <strong>Identidade visual</strong>
                     <p>
-                      Interface inspirada na Inventus Power. A marca foi
-                      representada tipograficamente; a aprovação visual e o
-                      logotipo oficial podem ser incorporados pela empresa.
+                      Logotipo original e cores consultados no site oficial da
+                      Inventus Power. A interface utiliza laranja, cinzas e azul
+                      institucional, preservando as proporções da marca.
                     </p>
                   </div>
                 </div>

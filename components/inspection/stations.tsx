@@ -75,23 +75,23 @@ export function Stations({
             <div className="fields">
               {[
                 ['line', 'Linha', 'Linha 02'],
-                ['code', 'Identificação da estação', 'ES-005'],
-                ['model', 'Modelo', 'LG 24W'],
+                ['code', 'Posto', 'Soldagem Inlet'],
+                ['model', 'Modelo do formulário', 'LG 24W'],
                 [
                   'instrument',
-                  'Nº do instrumento de medição',
+                  'Nº do instrumento de medição (se disponível)',
                   'Identificação patrimonial',
                 ],
                 [
                   'approvedBy',
-                  'Responsável pela configuração',
+                  'Responsável pela configuração (se informado)',
                   'Nome / matrícula',
                 ],
               ].map(([name, label, placeholder]) => (
                 <label className="field" key={name}>
                   {label}
                   <Input
-                    required
+                    required={name !== 'instrument' && name !== 'approvedBy'}
                     name={name}
                     maxLength={160}
                     placeholder={placeholder}
@@ -126,7 +126,10 @@ export function Stations({
               </p>
             )}
             <div className="form-footer">
-              <p>Identificações não podem se repetir na mesma linha.</p>
+              <p>
+                O posto identifica a estação dentro da linha. Campos não
+                informados ficam pendentes.
+              </p>
               <Button type="submit" disabled={busy} className="action">
                 {busy ? 'Salvando…' : 'Salvar estação'}
               </Button>
@@ -168,7 +171,8 @@ export function Stations({
               <p>{s.data.line}</p>
               <h2>{s.data.code}</h2>
               <p>
-                {s.data.model} · Instrumento {s.data.instrument}
+                Modelo: {s.data.model} · Instrumento:{' '}
+                {s.data.instrument || 'Pendente de identificação'}
               </p>
               <div className="separator" />
               <p>
@@ -177,7 +181,16 @@ export function Stations({
                   {s.data.limits.min}–{s.data.limits.max} °C
                 </strong>
               </p>
-              <p>Configurado por {s.data.approvedBy}</p>
+              <p>
+                {s.data.approvedBy
+                  ? `Configurado por ${s.data.approvedBy}`
+                  : 'Responsável pela configuração: não informado'}
+              </p>
+              {(!s.data.instrument || !s.data.approvedBy) && (
+                <p className="status warn">
+                  Cadastro inicial · dados pendentes
+                </p>
+              )}
               <footer>
                 <Button variant="outline" onClick={() => onInspect(s.id)}>
                   Verificar

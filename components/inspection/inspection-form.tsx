@@ -6,6 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { NativeSelect } from '@/components/ui/native-select';
 import { Panel } from './shared';
+import { PostChecks } from './post-checks';
 import {
   MOMENTS,
   localDate,
@@ -86,6 +87,17 @@ export function InspectionForm({
     }, 350);
     return () => clearTimeout(timer);
   }, [draft, loaded]);
+  useEffect(() => {
+    if (!loaded) return;
+    const flush = (event: Event) => {
+      const detail = (
+        event as CustomEvent<{ waitUntil: (p: Promise<unknown>) => void }>
+      ).detail;
+      detail.waitUntil(setSetting('draft', draft));
+    };
+    window.addEventListener('solda:before-update', flush);
+    return () => window.removeEventListener('solda:before-update', flush);
+  }, [draft, loaded]);
   function change(name: keyof Draft, value: string) {
     setDraft((d) => ({ ...d, [name]: value }));
     setMessage('');
@@ -160,7 +172,7 @@ export function InspectionForm({
       <Panel title="01 · Identificação da verificação">
         <div className="panel-body fields">
           <label className="field">
-            Linha / estação
+            Linha / posto
             <NativeSelect
               required
               value={draft.stationId}
@@ -241,90 +253,17 @@ export function InspectionForm({
           {station && (
             <div className="field">
               <span>Instrumento de medição</span>
-              <strong>{station.instrument}</strong>
+              <strong>
+                {station.instrument || 'Pendente de identificação'}
+              </strong>
               <small>{station.model}</small>
             </div>
           )}
         </div>
       </Panel>
-      <Panel title="02 · Condição do equipamento">
+      <PostChecks station={station} values={draft} onChange={change} />
+      <Panel title="Observações e conclusão">
         <div className="panel-body">
-          {[
-            [
-              'physical',
-              'Integridade da estação',
-              'Condições do cabo, ponta, esponja e equipamento.',
-            ],
-            [
-              'solder',
-              'Validade do fio de solda',
-              'Verifique a validade do material em uso.',
-            ],
-          ].map(([key, title, desc]) => (
-            <div className="check-row" key={key}>
-              <div>
-                <h3>{title}</h3>
-                <p>{desc}</p>
-              </div>
-              <fieldset className="choice" aria-label={title}>
-                {['OK', 'NC'].map((v) => (
-                  <button
-                    type="button"
-                    key={v}
-                    aria-pressed={draft[key as keyof Draft] === v}
-                    className={`${draft[key as keyof Draft] === v ? 'selected' : ''} ${v === 'NC' ? 'nc' : ''}`}
-                    onClick={() => change(key as keyof Draft, v)}
-                  >
-                    {v === 'OK' ? 'OK · Conforme' : 'NC · Não conforme'}
-                  </button>
-                ))}
-              </fieldset>
-            </div>
-          ))}
-        </div>
-      </Panel>
-      <Panel title="03 · Medições">
-        <div className="panel-body">
-          <div className="fields">
-            {[
-              [
-                'temperature',
-                'Temperatura da ponta',
-                '°C',
-                station
-                  ? `${station.limits.min} a ${station.limits.max} °C`
-                  : 'Selecione uma estação',
-              ],
-              [
-                'resistance',
-                'Resistência ponta / terra',
-                'Ω',
-                station ? `Máximo ${station.limits.resistance} Ω` : '—',
-              ],
-              [
-                'voltage',
-                'Tensão residual ponta / terra',
-                'mV',
-                station ? `Máximo ${station.limits.voltage} mV` : '—',
-              ],
-            ].map(([key, title, unit, limit]) => (
-              <label className="field" key={key}>
-                {title} ({unit})
-                <Input
-                  required
-                  type="number"
-                  min="0"
-                  max="2000"
-                  step="0.01"
-                  inputMode="decimal"
-                  placeholder="Informe o valor"
-                  value={draft[key as keyof Draft]}
-                  onChange={(e) => change(key as keyof Draft, e.target.value)}
-                />
-                <small>{limit}</small>
-              </label>
-            ))}
-          </div>
           {nc && (
             <div
               className="notice amber"

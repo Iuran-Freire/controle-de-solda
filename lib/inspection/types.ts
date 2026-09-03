@@ -85,7 +85,16 @@ export function formatTime(iso: string) {
     minute: '2-digit',
   });
 }
-export function imr(records: Inspection[]) {
+export type Measurement = 'temperature' | 'resistance' | 'voltage';
+export function imr(
+  records: Inspection[],
+  metric: Measurement = 'temperature',
+) {
+  if (new Set(records.map((r) => r.stationId)).size > 1) {
+    throw new Error(
+      'Selecione apenas um posto para calcular a amplitude móvel.',
+    );
+  }
   const sorted = [...records].sort(
     (a, b) =>
       a.measuredAt.localeCompare(b.measuredAt) || a.id.localeCompare(b.id),
@@ -93,11 +102,18 @@ export function imr(records: Inspection[]) {
   const points = sorted.map((r, index) => ({
     index: index + 1,
     temperature: r.temperature,
-    mr: index ? Math.abs(r.temperature - sorted[index - 1].temperature) : null,
+    value: r[metric],
+    previous: index ? sorted[index - 1][metric] : null,
+    mr: index
+      ? Number(Math.abs(r[metric] - sorted[index - 1][metric]).toFixed(6))
+      : null,
+    id: r.id,
+    shift: r.shift,
+    moment: r.moment,
     date: formatTime(r.measuredAt),
   }));
   const mean = points.length
-    ? points.reduce((s, p) => s + p.temperature, 0) / points.length
+    ? points.reduce((s, p) => s + p.value, 0) / points.length
     : 0;
   const mrMean =
     points.length > 1

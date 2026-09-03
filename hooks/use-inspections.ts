@@ -11,7 +11,8 @@ export function useInspections() {
     [error, setError] = useState(''),
     [lastSync, setLastSync] = useState<string>(),
     [ready, setReady] = useState(false),
-    [offlineReady, setOfflineReady] = useState(false);
+    [offlineReady, setOfflineReady] = useState(false),
+    [updateAvailable, setUpdateAvailable] = useState(false);
   const busy = useRef(false);
   const refresh = useCallback(async () => {
     const [s, i, l] = await Promise.all([
@@ -73,6 +74,16 @@ export function useInspections() {
       clearInterval(timer);
     };
   }, [refresh, sync]);
+  useEffect(() => {
+    if (!('serviceWorker' in navigator)) return;
+    const wasControlled = !!navigator.serviceWorker.controller;
+    const changed = () => {
+      if (wasControlled) setUpdateAvailable(true);
+    };
+    navigator.serviceWorker.addEventListener('controllerchange', changed);
+    return () =>
+      navigator.serviceWorker.removeEventListener('controllerchange', changed);
+  }, []);
   return {
     stations,
     inspections,
@@ -82,6 +93,7 @@ export function useInspections() {
     lastSync,
     ready,
     offlineReady,
+    updateAvailable,
     refresh,
     sync,
     pending:

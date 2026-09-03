@@ -33,11 +33,15 @@ const context = {
     delete: async () => true,
   },
   URL,
+  AbortSignal,
   location: { origin },
   fetch: async (path, init) => {
     requests++;
     if (!network) throw new Error('offline');
-    return fetch(new URL(path, origin), init);
+    return fetch(
+      new URL(typeof path === 'string' ? path : path.url, origin),
+      init,
+    );
   },
 };
 vm.runInNewContext(await readFile('dist/client/sw.js', 'utf8'), context);
@@ -45,6 +49,15 @@ let ready = Promise.resolve();
 handlers.install({ waitUntil: (promise) => (ready = promise) });
 await ready;
 assert.ok(store.has('/'));
+// With network available navigation must fetch the latest app, not the old shell.
+let onlineResponse = Promise.resolve(new Response());
+const beforeOnline = requests;
+handlers.fetch({
+  request: { method: 'GET', url: origin + '/', mode: 'navigate' },
+  respondWith: (p) => (onlineResponse = p),
+});
+assert.equal((await onlineResponse).status, 200);
+assert.equal(requests, beforeOnline + 1);
 network = false;
 let response = Promise.resolve(new Response());
 handlers.fetch({

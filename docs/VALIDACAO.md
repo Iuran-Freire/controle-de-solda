@@ -15,6 +15,8 @@ Data: 02/09/2026.
 
 ## Pendências de homologação
 
+Atualização — resultados por dia e turno: 10 testes aprovados no total. Foram adicionados cenários de agrupamento pela data de produção (inclusive medição no dia civil seguinte), separação por turno/posto, exclusão de conflitos, identificação de pendências, intervalo vazio e preservação de valores individuais/limites históricos. TypeScript e build aprovados.
+
 Não foi realizada inspeção visual automatizada nem teste em celular físico. Câmera, permissões, instalação PWA, armazenamento sob pressão, atualização de versões e retomada após expiração de sessão devem ser testados nos aparelhos corporativos. O teste do worker simula a rede em um ambiente de execução JavaScript; não substitui teste de navegador real.
 
 WebMCP opcional `start_station_inspection` foi implementado com detecção de suporte; não havia contexto WebMCP de validação disponível nesta execução. Não foi considerado um recurso homologado.

@@ -1,6 +1,6 @@
 # Inventus Power · Controle de Solda
 
-Piloto para digitalizar a verificação diária das estações de solda e a carta I-MR. Visual inspirado na marca, sem incorporar logotipo oficial. Interface responsiva em português.
+Piloto para digitalizar a verificação diária das estações de solda e a carta I-MR. Usa o logotipo original e a paleta consultada no site oficial da Inventus Power. Interface responsiva em português. Fontes em `docs/IDENTIDADE-VISUAL.md`.
 
 ## Rodar no VS Code
 
@@ -36,6 +36,8 @@ scripts/                   Preparação offline e testes
 TypeScript + React, Vinext (API de aplicação compatível com Next.js) sobre Vite, shadcn, Recharts, IndexedDB, QRCode e ZXing. A hospedagem Sites usa Cloudflare Worker e D1/SQLite para a base central. **PostgreSQL e Supabase não estão conectados**: eram a proposta inicial; o piloto usa o banco disponível nesta plataforma. As camadas estão separadas para futura migração com a TI.
 
 ## Funcionamento
+
+Em **Resultados e I-MR**, selecione o posto e filtre o período pela data de produção e pelo turno. O resumo conta verificações conformes/não conformes por dia e turno. Os gráficos individuais mostram resistência, tensão e temperatura para cada coleta I.T/A.R/F.T, com os limites preservados no registro. A tabela permite conferir os cinco checks. Pendências de envio são identificadas e conflitos ficam fora dos gráficos. As cartas I-MR continuam mostrando a série histórica completa do posto, separadamente dos filtros diários.
 
 Cadastre estações com linha, código, modelo, instrumento, responsável e critérios. Registre inspetor, operador, data de produção, turno, momento, integridade, validade, temperatura, resistência e tensão. Não conformidades exigem observação e ação. Valores em °C, Ω e mV devem ser confirmados com a qualidade.
 

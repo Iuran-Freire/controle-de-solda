@@ -9,9 +9,28 @@ import {
   type Inspection,
   type LocalRow,
 } from '../lib/inspection/types';
-import { validateInspection } from '../lib/inspection/validation';
+import {
+  validateInspection,
+  validateStation,
+} from '../lib/inspection/validation';
 import { addInspection, all } from '../lib/offline/database';
 import { synchronize } from '../lib/offline/sync';
+void test('cadastro por posto preserva dados desconhecidos em branco', () => {
+  const station = {
+    id: 'posto-teste',
+    line: 'Linha 2',
+    code: 'Soldagem Inlet',
+    model: 'LG 24W',
+    instrument: '',
+    approvedBy: '',
+    limits: DEFAULT_LIMITS,
+    createdAt: '2026-09-01T12:00:00Z',
+  };
+  assert.equal(validateStation(station).instrument, '');
+  assert.equal(validateStation(station).approvedBy, '');
+  assert.throws(() => validateStation({ ...station, code: '' }));
+  assert.throws(() => validateStation({ ...station, instrument: 123 }));
+});
 const record = (id: string, temperature = 450): Inspection => ({
   id,
   stationId: 'station-test',
@@ -67,6 +86,32 @@ void test('amplitude móvel usa sequência cronológica e primeira amplitude nul
   assert.equal(stats.mrMean, 5);
   assert.equal(stats.mrUcl, 16.335);
   assert.equal(stats.points[0].temperature, 450);
+});
+void test('amplitudes independentes por item e coleta, sem misturar postos', () => {
+  const a = { ...record('a', 450), resistance: 8, voltage: 12 };
+  const b = {
+    ...record('b', 436),
+    resistance: 6,
+    voltage: 14,
+    measuredAt: '2026-09-01T14:00:00Z',
+  };
+  const c = {
+    ...record('c', 440),
+    resistance: 6,
+    voltage: 13,
+    measuredAt: '2026-09-02T12:00:00Z',
+  };
+  for (const [metric, expected] of [
+    ['temperature', [null, 14, 4]],
+    ['resistance', [null, 2, 0]],
+    ['voltage', [null, 2, 1]],
+  ] as const) {
+    assert.deepEqual(
+      imr([c, a, b], metric).points.map((p) => p.mr),
+      expected,
+    );
+  }
+  assert.throws(() => imr([a, { ...b, stationId: 'outro-posto' }]));
 });
 void test('chave de duplicidade diferencia turno e momento', () => {
   assert.notEqual(
