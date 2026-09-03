@@ -12,13 +12,19 @@ import {
   YAxis,
   Tooltip,
   Legend,
+  LabelList,
 } from 'recharts';
 import { Input } from '@/components/ui/input';
 import { NativeSelect } from '@/components/ui/native-select';
 import { ChartContainer } from '@/components/ui/chart';
 import { Panel, Empty } from './shared';
 import { dailyResults } from '@/lib/inspection/daily-results';
-import { measurementDomain, chartNumber } from '@/lib/inspection/chart-scale';
+import {
+  measurementDomain,
+  measurementTicks,
+  chartNumber,
+} from '@/lib/inspection/chart-scale';
+import { formatTime } from '@/lib/inspection/types';
 import type { Station, Inspection, LocalRow } from '@/lib/inspection/types';
 export function DailyResults({
   station,
@@ -210,7 +216,7 @@ export function DailyResults({
                   >
                     <LineChart
                       data={result.points}
-                      margin={{ top: 12, right: 18, left: -10, bottom: 5 }}
+                      margin={{ top: 26, right: 24, left: 0, bottom: 5 }}
                     >
                       <CartesianGrid vertical={false} strokeDasharray="3 3" />
                       <XAxis
@@ -230,6 +236,13 @@ export function DailyResults({
                               )
                         }
                         allowDataOverflow={!includeLimits}
+                        ticks={
+                          includeLimits
+                            ? undefined
+                            : measurementTicks(
+                                result.points.map((point) => point[metric.key]),
+                              )
+                        }
                         tickFormatter={chartNumber}
                         width={48}
                         tickCount={4}
@@ -238,6 +251,18 @@ export function DailyResults({
                         axisLine={false}
                       />
                       <Tooltip
+                        labelFormatter={(_, payload) => {
+                          const point = payload?.[0]?.payload;
+                          return point
+                            ? `${formatTime(point.measuredAt)} · ${point.shift}º turno · ${point.momentLabel}`
+                            : '';
+                        }}
+                        contentStyle={{
+                          borderRadius: 10,
+                          border: '1px solid #e0e2e5',
+                          boxShadow: '0 4px 16px #00000012',
+                          fontSize: 12,
+                        }}
                         formatter={(value) =>
                           typeof value === 'number'
                             ? `${chartNumber(value)} ${metric.unit}`
@@ -268,8 +293,25 @@ export function DailyResults({
                         stroke="#ff9800"
                         strokeWidth={2.5}
                         dot={{ r: 4, fill: '#fff', strokeWidth: 2 }}
+                        activeDot={{ r: 6, strokeWidth: 2 }}
                         isAnimationActive={false}
-                      />
+                      >
+                        {result.points.length <= 8 && (
+                          <LabelList
+                            dataKey={metric.key}
+                            position="top"
+                            offset={10}
+                            fill="#404042"
+                            fontSize={12}
+                            fontWeight={600}
+                            formatter={(value) =>
+                              typeof value === 'number'
+                                ? chartNumber(value)
+                                : ''
+                            }
+                          />
+                        )}
+                      </Line>
                     </LineChart>
                   </ChartContainer>
                 </section>

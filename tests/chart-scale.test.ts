@@ -1,6 +1,13 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { measurementDomain, chartNumber } from '../lib/inspection/chart-scale';
+import {
+  measurementDomain,
+  measurementTicks,
+  chartNumber,
+} from '../lib/inspection/chart-scale';
+void test('intervalos simples e uniformes para pequenas variações', () => {
+  assert.deepEqual(measurementTicks([0.4, 0.6, 0.9]), [0.2, 0.4, 0.6, 0.8, 1]);
+});
 void test('escala mostra frações de mV sem ser comprimida pelo limite de 20', () => {
   const [min, max] = measurementDomain([0.6, 0.9, 0.5, 0.4]);
   assert.ok(min < 0.4 && min >= 0);
