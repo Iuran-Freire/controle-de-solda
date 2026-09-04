@@ -61,23 +61,22 @@ export function InstallApp({
     }
   }
   return (
-    <Panel title="Aplicativo no Android" aside={<Smartphone size={20} />}>
+    <Panel title="Controle de Solda no celular" aside={<Smartphone size={20} />}>
       <div className="panel-body help-list">
         <p>
-          Abra este sistema no Chrome do celular e entre com a conta autorizada.
-          A instalação cria o ícone Controle de Solda na tela inicial.
+          Tenha o Controle de Solda na tela inicial para acessar na linha.
         </p>
         {installed ? (
           <strong>Aplicativo instalado neste aparelho.</strong>
         ) : prompt ? (
           <Button className="action" onClick={() => void install()}>
-            <Download /> Instalar aplicativo
+            <Download /> Instalar no celular
           </Button>
         ) : (
           <p>
-            No Chrome, toque em ⋮ → <strong>Instalar aplicativo</strong> ou{' '}
-            <strong>Adicionar à tela inicial</strong>. Se o ícone já existe,
-            abra por ele.
+            No Chrome do Android, toque em ⋮ e escolha{' '}
+            <strong>Instalar aplicativo</strong> ou{' '}
+            <strong>Adicionar à tela inicial</strong>.
           </p>
         )}
         {local && (
@@ -89,24 +88,23 @@ export function InstallApp({
         <div role="status">
           <strong>
             {offlineReady && stationCount > 0
-              ? 'Preparado para preencher offline neste aparelho'
-              : 'Preparação offline pendente'}
+              ? 'Pronto para usar sem sinal'
+              : 'Prepare o aparelho antes de ir para a linha'}
           </strong>
           <p>
             {offlineReady
-              ? 'Arquivos do aplicativo disponíveis neste aparelho.'
-              : 'Mantenha o aplicativo aberto com conexão até os arquivos ficarem disponíveis.'}
+              ? 'O aplicativo está salvo neste aparelho.'
+              : 'Mantenha esta tela aberta com internet para concluir a preparação.'}
           </p>
           <p>
             {stationCount > 0
-              ? `${stationCount} posto(s) disponível(is) neste aparelho.`
+              ? `${stationCount} ${stationCount === 1 ? 'posto disponível' : 'postos disponíveis'}.`
               : 'Sincronize ou cadastre os postos antes de ir para a linha.'}
           </p>
         </div>
         <p>
-          Antes de usar na linha, ative o modo avião e reabra pelo ícone para
-          confirmar o funcionamento. Ao voltar a ter sinal, abra o aplicativo
-          para enviar as verificações pendentes.
+          As verificações ficam salvas no aparelho e são enviadas quando a
+          conexão voltar, com o aplicativo aberto.
         </p>
         {message && <p role="status">{message}</p>}
       </div>

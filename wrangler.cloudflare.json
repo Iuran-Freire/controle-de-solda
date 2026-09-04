@@ -1,0 +1,33 @@
+{
+  "name": "controle-solda",
+  "account_id": "93297703d8125e69839ab1e24cdf4675",
+  "main": "dist/server/index.js",
+  "compatibility_date": "2026-08-31",
+  "compatibility_flags": [
+    "nodejs_compat"
+  ],
+  "no_bundle": true,
+  "rules": [
+    {
+      "type": "ESModule",
+      "globs": [
+        "**/*.js",
+        "**/*.mjs"
+      ]
+    }
+  ],
+  "assets": {
+    "directory": "dist/client"
+  },
+  "keep_vars": true,
+  "workers_dev": true,
+  "preview_urls": false,
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "controle-solda-db",
+      "database_id": "4a502c36-a33b-48fc-9e48-788d94313620",
+      "migrations_dir": "drizzle"
+    }
+  ]
+}

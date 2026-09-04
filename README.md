@@ -1,5 +1,13 @@
 # Inventus Power · Controle de Solda
 
+## Hospedagem atual
+
+O sistema está publicado em https://controle-solda.iuranhumberto99.workers.dev,
+com banco Cloudflare D1 e acesso protegido por Cloudflare Access. O login da
+hospedagem é separado da identificação de inspetor declarada no formulário.
+O procedimento de publicação está em [CLOUDFLARE.md](CLOUDFLARE.md).
+Os registros da hospedagem anterior não foram migrados automaticamente.
+
 Piloto para digitalizar a verificação diária das estações de solda e a carta I-MR. Usa o logotipo original e a paleta consultada no site oficial da Inventus Power. Interface responsiva em português. Fontes em `docs/IDENTIDADE-VISUAL.md`.
 
 ## Rodar no VS Code
