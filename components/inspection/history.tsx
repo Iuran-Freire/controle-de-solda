@@ -14,6 +14,7 @@ import {
   type Station,
   type LocalRow,
 } from '@/lib/inspection/types';
+import { inProductionMonth } from '@/lib/inspection/period';
 export function InspectionTable({
   rows,
   stations,
@@ -138,12 +139,14 @@ export function HistoryView({
 }) {
   const [search, setSearch] = useState(''),
     [line, setLine] = useState(''),
+    [month, setMonth] = useState(''),
     [date, setDate] = useState(''),
     [result, setResult] = useState('');
   const filtered = rows.filter((r) => {
     const s = stations.find((s) => s.id === r.data.stationId)?.data;
     return (
       (!line || s?.line === line) &&
+      inProductionMonth(r.data.productionDate, month) &&
       (!date || r.data.productionDate === date) &&
       (!result || r.data.result === result) &&
       [r.data.inspector, s?.code, s?.line]
@@ -249,11 +252,25 @@ export function HistoryView({
               </NativeSelect>
             </label>
             <label className="field">
-              Data de produção
+              Mês de produção
+              <Input
+                type="month"
+                value={month}
+                onChange={(e) => {
+                  setMonth(e.target.value);
+                  if (e.target.value) setDate('');
+                }}
+              />
+            </label>
+            <label className="field">
+              Dia específico
               <Input
                 type="date"
                 value={date}
-                onChange={(e) => setDate(e.target.value)}
+                onChange={(e) => {
+                  setDate(e.target.value);
+                  if (e.target.value) setMonth('');
+                }}
               />
             </label>
             <label className="field">

@@ -22,6 +22,13 @@ import {
   updateStation,
 } from '../lib/offline/database';
 import { synchronize } from '../lib/offline/sync';
+import { inProductionMonth } from '../lib/inspection/period';
+void test('filtro mensal usa a data de produção', () => {
+  assert.equal(inProductionMonth('2026-09-01', '2026-09'), true);
+  assert.equal(inProductionMonth('2026-10-01', '2026-09'), false);
+  assert.equal(inProductionMonth('2026-10-01', ''), true);
+  assert.equal(inProductionMonth('2026-09-01', '09/2026'), false);
+});
 void test('cadastro por posto preserva dados desconhecidos em branco', () => {
   const station = {
     id: 'posto-teste',
