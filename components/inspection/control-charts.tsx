@@ -78,12 +78,7 @@ export function ControlCharts({
           </div>
         }
       >
-        <div className="panel-body">
-          <p className="text-muted">
-            O mês selecionado controla os resultados, a Carta I e os gráficos de
-            amplitude. Deixe o mês vazio para consultar todo o período.
-          </p>
-        </div>
+        <div />
       </Panel>
       {station && <DailyResults station={station} rows={periodRows} />}
       <p className="subtitle" style={{ marginBottom: 20 }}>

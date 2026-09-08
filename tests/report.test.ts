@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import {
   reportEnd,
   reportRows,
+  reportStart,
   type ReportFilter,
 } from '../lib/inspection/report';
 import type { Inspection, LocalRow } from '../lib/inspection/types';
@@ -27,6 +28,27 @@ const row = (
     stationId,
     measuredAt: `${productionDate}T12:00:00Z`,
   } as Inspection,
+});
+void test('mês inclui todos os dias, inclusive fevereiro bissexto', () => {
+  const monthly: ReportFilter = {
+    ...filter,
+    start: '2028-02',
+    period: 'month',
+  };
+  assert.equal(reportStart(monthly), '2028-02-01');
+  assert.equal(reportEnd(monthly), '2028-02-29');
+  assert.deepEqual(
+    reportRows(
+      [
+        row('antes', '2028-01-31', '1'),
+        row('inicio', '2028-02-01', '1'),
+        row('fim', '2028-02-29', '3'),
+        row('depois', '2028-03-01', '1'),
+      ],
+      monthly,
+    ).map((item) => item.id),
+    ['inicio', 'fim'],
+  );
 });
 void test('semana inclui sete dias e atravessa mês, filtrando turnos e posto', () => {
   assert.equal(reportEnd(filter), '2026-10-04');

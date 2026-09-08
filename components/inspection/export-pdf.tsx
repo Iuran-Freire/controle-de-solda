@@ -7,6 +7,7 @@ import { NativeSelect } from '@/components/ui/native-select';
 import { Panel } from './shared';
 import {
   reportEnd,
+  reportStart,
   reportRows,
   type ReportFilter,
 } from '@/lib/inspection/report';
@@ -42,7 +43,8 @@ export function ExportPdf({
   });
   const [busy, setBusy] = useState(false),
     [message, setMessage] = useState('');
-  const end = reportEnd(filter),
+  const start = reportStart(filter),
+    end = reportEnd(filter),
     selected = reportRows(rows, filter);
   async function generate() {
     setBusy(true);
@@ -55,7 +57,7 @@ export function ExportPdf({
       ]);
       const doc = createReportPdf(rows, stations, filter, font, logo);
       doc.save(
-        `controle-solda-${filter.start}-a-${end}-turnos-${filter.shifts.join('-')}.pdf`,
+        `controle-solda-${start}-a-${end}-turnos-${filter.shifts.join('-')}.pdf`,
       );
       setMessage('PDF gerado. Confira os downloads do aparelho.');
     } catch (error) {
@@ -76,23 +78,33 @@ export function ExportPdf({
             Período
             <NativeSelect
               value={filter.period}
-              onChange={(e) =>
+              onChange={(e) => {
+                const period = e.target.value as 'day' | 'week' | 'month';
                 setFilter({
                   ...filter,
-                  period: e.target.value as 'day' | 'week',
-                })
-              }
+                  period,
+                  start:
+                    period === 'month'
+                      ? filter.start.slice(0, 7)
+                      : filter.start.length === 7
+                        ? `${filter.start}-01`
+                        : filter.start,
+                });
+              }}
             >
               <option value="day">Um dia</option>
               <option value="week">Uma semana (7 dias)</option>
+              <option value="month">Um mês</option>
             </NativeSelect>
           </label>
           <label className="field">
             {filter.period === 'day'
               ? 'Data de produção'
-              : 'Primeiro dia da semana'}
+              : filter.period === 'week'
+                ? 'Primeiro dia da semana'
+                : 'Mês de produção'}
             <Input
-              type="date"
+              type={filter.period === 'month' ? 'month' : 'date'}
               value={filter.start}
               onChange={(e) => setFilter({ ...filter, start: e.target.value })}
             />
@@ -141,7 +153,7 @@ export function ExportPdf({
         </fieldset>
         <p className="subtitle">
           {end
-            ? `${filter.start.split('-').reverse().join('/')} a ${end.split('-').reverse().join('/')} · ${selected.length} registro(s)`
+            ? `${start.split('-').reverse().join('/')} a ${end.split('-').reverse().join('/')} · ${selected.length} registro(s)`
             : 'Selecione uma data válida.'}
         </p>
         <p className="draft-note">
