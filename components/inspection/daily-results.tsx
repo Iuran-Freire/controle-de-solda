@@ -29,13 +29,22 @@ import type { Station, Inspection, LocalRow } from '@/lib/inspection/types';
 export function DailyResults({
   station,
   rows,
+  from,
+  to,
+  shift,
+  onFromChange,
+  onToChange,
+  onShiftChange,
 }: {
   station: Station;
   rows: LocalRow<Inspection>[];
+  from: string;
+  to: string;
+  shift: string;
+  onFromChange: (value: string) => void;
+  onToChange: (value: string) => void;
+  onShiftChange: (value: string) => void;
 }) {
-  const [from, setFrom] = useState(''),
-    [to, setTo] = useState(''),
-    [shift, setShift] = useState('');
   const [includeLimits, setIncludeLimits] = useState(false);
   const invalid = !!from && !!to && from > to;
   const result = dailyResults(rows, station.id, from, to, shift);
@@ -48,7 +57,7 @@ export function DailyResults({
             <Input
               type="date"
               value={from}
-              onChange={(e) => setFrom(e.target.value)}
+              onChange={(e) => onFromChange(e.target.value)}
             />
           </label>
           <label className="field">
@@ -56,14 +65,15 @@ export function DailyResults({
             <Input
               type="date"
               value={to}
-              onChange={(e) => setTo(e.target.value)}
+              min={from}
+              onChange={(e) => onToChange(e.target.value)}
             />
           </label>
           <label className="field">
             Turno
             <NativeSelect
               value={shift}
-              onChange={(e) => setShift(e.target.value)}
+              onChange={(e) => onShiftChange(e.target.value)}
             >
               <option value="">Todos os turnos</option>
               {['1', '2', '3'].map((s) => (

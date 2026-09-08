@@ -11,7 +11,6 @@ import {
 } from 'recharts';
 import { ChartContainer } from '@/components/ui/chart';
 import { NativeSelect } from '@/components/ui/native-select';
-import { Input } from '@/components/ui/input';
 import { Panel, Empty } from './shared';
 import { DailyResults } from './daily-results';
 import { MovingRangeCharts } from './moving-range-charts';
@@ -21,7 +20,6 @@ import {
   type Inspection,
   type LocalRow,
 } from '@/lib/inspection/types';
-import { inProductionMonth } from '@/lib/inspection/period';
 export function ControlCharts({
   stations,
   rows,
@@ -30,7 +28,9 @@ export function ControlCharts({
   rows: LocalRow<Inspection>[];
 }) {
   const [selected, setSelected] = useState('');
-  const [month, setMonth] = useState('');
+  const [from, setFrom] = useState('');
+  const [to, setTo] = useState('');
+  const [shift, setShift] = useState('');
   const station =
     stations.find((s) => s.id === selected)?.data ?? stations[0]?.data;
   const series = rows
@@ -38,52 +38,52 @@ export function ControlCharts({
       (r) =>
         r.data.stationId === station?.id &&
         r.status !== 'conflict' &&
-        inProductionMonth(r.data.productionDate, month),
+        (!from || r.data.productionDate >= from) &&
+        (!to || r.data.productionDate <= to) &&
+        (!shift || r.data.shift === shift),
     )
     .map((r) => r.data);
-  const periodRows = rows.filter((r) =>
-    inProductionMonth(r.data.productionDate, month),
-  );
   const stats = imr(series);
   return (
     <>
       <Panel
         title="Acompanhamento por posto"
         aside={
-          <div className="toolbar">
-            <label className="field">
-              Mês de produção
-              <Input
-                type="month"
-                value={month}
-                onChange={(e) => setMonth(e.target.value)}
-              />
-            </label>
-            <label className="field">
-              Linha / posto
-              <NativeSelect
-                value={station?.id ?? ''}
-                onChange={(e) => setSelected(e.target.value)}
-              >
-                <option value="" disabled>
-                  Selecione
+          <label className="field">
+            Linha / posto
+            <NativeSelect
+              value={station?.id ?? ''}
+              onChange={(e) => setSelected(e.target.value)}
+            >
+              <option value="" disabled>
+                Selecione
+              </option>
+              {stations.map((s) => (
+                <option key={s.id} value={s.id}>
+                  {s.data.line} · {s.data.code}
                 </option>
-                {stations.map((s) => (
-                  <option key={s.id} value={s.id}>
-                    {s.data.line} · {s.data.code}
-                  </option>
-                ))}
-              </NativeSelect>
-            </label>
-          </div>
+              ))}
+            </NativeSelect>
+          </label>
         }
       >
         <div />
       </Panel>
-      {station && <DailyResults station={station} rows={periodRows} />}
+      {station && (
+        <DailyResults
+          station={station}
+          rows={rows}
+          from={from}
+          to={to}
+          shift={shift}
+          onFromChange={setFrom}
+          onToChange={setTo}
+          onShiftChange={setShift}
+        />
+      )}
       <p className="subtitle" style={{ marginBottom: 20 }}>
-        Cartas I-MR abaixo: medições do posto e do mês selecionados, ordenadas
-        pela hora da coleta.
+        Cartas I-MR abaixo: medições do posto, período e turno selecionados,
+        ordenadas pela hora da coleta.
       </p>
       {!series.length ? (
         <Empty
