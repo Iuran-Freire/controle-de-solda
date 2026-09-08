@@ -3,13 +3,12 @@ import assert from 'node:assert/strict';
 import {
   reportEnd,
   reportRows,
-  reportStart,
   type ReportFilter,
 } from '../lib/inspection/report';
 import type { Inspection, LocalRow } from '../lib/inspection/types';
 const filter: ReportFilter = {
   start: '2026-09-28',
-  period: 'week',
+  end: '2026-10-04',
   shifts: ['1', '3'],
   stationId: 'a',
 };
@@ -29,28 +28,7 @@ const row = (
     measuredAt: `${productionDate}T12:00:00Z`,
   } as Inspection,
 });
-void test('mês inclui todos os dias, inclusive fevereiro bissexto', () => {
-  const monthly: ReportFilter = {
-    ...filter,
-    start: '2028-02',
-    period: 'month',
-  };
-  assert.equal(reportStart(monthly), '2028-02-01');
-  assert.equal(reportEnd(monthly), '2028-02-29');
-  assert.deepEqual(
-    reportRows(
-      [
-        row('antes', '2028-01-31', '1'),
-        row('inicio', '2028-02-01', '1'),
-        row('fim', '2028-02-29', '3'),
-        row('depois', '2028-03-01', '1'),
-      ],
-      monthly,
-    ).map((item) => item.id),
-    ['inicio', 'fim'],
-  );
-});
-void test('semana inclui sete dias e atravessa mês, filtrando turnos e posto', () => {
+void test('intervalo inclui as duas datas e filtra turnos e posto', () => {
   assert.equal(reportEnd(filter), '2026-10-04');
   const rows = [
     row('a', '2026-09-27', '1'),
@@ -64,12 +42,9 @@ void test('semana inclui sete dias e atravessa mês, filtrando turnos e posto', 
     reportRows(rows, filter).map((r) => r.id),
     ['b', 'c'],
   );
-  assert.deepEqual(
-    reportRows(rows, { ...filter, period: 'day' }).map((r) => r.id),
-    ['b'],
-  );
   assert.deepEqual(reportRows(rows, { ...filter, shifts: [] }), []);
-  assert.equal(reportEnd({ ...filter, start: '2026-02-30' }), '');
+  assert.equal(reportEnd({ ...filter, end: '2026-02-30' }), '');
+  assert.equal(reportEnd({ ...filter, end: '2026-09-27' }), '');
 });
 void test('relatório preserva pendências e conflitos sem alterar registros', () => {
   const input = [

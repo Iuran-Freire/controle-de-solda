@@ -2,12 +2,7 @@ import { jsPDF } from 'jspdf';
 import { autoTable } from 'jspdf-autotable';
 import { chart } from './report-charts-pdf';
 import { chartNumber } from './chart-scale';
-import {
-  reportEnd,
-  reportRows,
-  reportStart,
-  type ReportFilter,
-} from './report';
+import { reportEnd, reportRows, type ReportFilter } from './report';
 import { shiftComparisons } from './shift-comparison';
 import type { Inspection, LocalRow, Station } from './types';
 const date = (value: string) => value.split('-').reverse().join('/');
@@ -63,7 +58,7 @@ export function createReportPdf(
         doc.text(`${metric.title} · Resultados e gráfico`, 64, 14);
         doc.setFontSize(8);
         doc.text(
-          `${date(reportStart(filter))} a ${date(reportEnd(filter))} · Turnos: ${filter.shifts.join(', ')}`,
+          `${date(filter.start)} a ${date(reportEnd(filter))} · Turnos: ${filter.shifts.join(', ')}`,
           64,
           20,
         );

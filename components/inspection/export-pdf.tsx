@@ -7,7 +7,6 @@ import { NativeSelect } from '@/components/ui/native-select';
 import { Panel } from './shared';
 import {
   reportEnd,
-  reportStart,
   reportRows,
   type ReportFilter,
 } from '@/lib/inspection/report';
@@ -37,14 +36,13 @@ export function ExportPdf({
 }) {
   const [filter, setFilter] = useState<ReportFilter>({
     start: localDate(),
-    period: 'day',
+    end: localDate(),
     shifts: ['1', '2', '3'],
     stationId: '',
   });
   const [busy, setBusy] = useState(false),
     [message, setMessage] = useState('');
-  const start = reportStart(filter),
-    end = reportEnd(filter),
+  const end = reportEnd(filter),
     selected = reportRows(rows, filter);
   async function generate() {
     setBusy(true);
@@ -57,7 +55,7 @@ export function ExportPdf({
       ]);
       const doc = createReportPdf(rows, stations, filter, font, logo);
       doc.save(
-        `controle-solda-${start}-a-${end}-turnos-${filter.shifts.join('-')}.pdf`,
+        `controle-solda-${filter.start}-a-${end}-turnos-${filter.shifts.join('-')}.pdf`,
       );
       setMessage('PDF gerado. Confira os downloads do aparelho.');
     } catch (error) {
@@ -75,38 +73,20 @@ export function ExportPdf({
       <div className="panel-body">
         <div className="toolbar">
           <label className="field">
-            Período
-            <NativeSelect
-              value={filter.period}
-              onChange={(e) => {
-                const period = e.target.value as 'day' | 'week' | 'month';
-                setFilter({
-                  ...filter,
-                  period,
-                  start:
-                    period === 'month'
-                      ? filter.start.slice(0, 7)
-                      : filter.start.length === 7
-                        ? `${filter.start}-01`
-                        : filter.start,
-                });
-              }}
-            >
-              <option value="day">Um dia</option>
-              <option value="week">Uma semana (7 dias)</option>
-              <option value="month">Um mês</option>
-            </NativeSelect>
-          </label>
-          <label className="field">
-            {filter.period === 'day'
-              ? 'Data de produção'
-              : filter.period === 'week'
-                ? 'Primeiro dia da semana'
-                : 'Mês de produção'}
+            Data inicial
             <Input
-              type={filter.period === 'month' ? 'month' : 'date'}
+              type="date"
               value={filter.start}
               onChange={(e) => setFilter({ ...filter, start: e.target.value })}
+            />
+          </label>
+          <label className="field">
+            Data final
+            <Input
+              type="date"
+              value={filter.end}
+              min={filter.start}
+              onChange={(e) => setFilter({ ...filter, end: e.target.value })}
             />
           </label>
           <label className="field">
@@ -153,8 +133,8 @@ export function ExportPdf({
         </fieldset>
         <p className="subtitle">
           {end
-            ? `${start.split('-').reverse().join('/')} a ${end.split('-').reverse().join('/')} · ${selected.length} registro(s)`
-            : 'Selecione uma data válida.'}
+            ? `${filter.start.split('-').reverse().join('/')} a ${end.split('-').reverse().join('/')} · ${selected.length} registro(s)`
+            : 'A data final deve ser igual ou posterior à data inicial.'}
         </p>
         <p className="draft-note">
           Exporta três tabelas: resistência, tensão e temperatura, cada uma com

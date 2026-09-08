@@ -47,7 +47,12 @@ mkdirSync('outputs', { recursive: true });
 const doc = createReportPdf(
   rows,
   [{ id: station.id, data: station, status: 'synced' }],
-  { start: '2026-09-01', period: 'week', shifts: ['1', '2'], stationId: '' },
+  {
+    start: '2026-09-01',
+    end: '2026-09-07',
+    shifts: ['1', '2'],
+    stationId: '',
+  },
   readFileSync('public/fonts/NotoSans-Regular.ttf', { encoding: 'base64' }),
   readFileSync('public/inventus-report-logo.png', { encoding: 'base64' }),
 );
