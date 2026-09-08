@@ -159,24 +159,52 @@ export function Stations({
               ))}
             </div>
             <div className="separator" />
-            <h3>Descrições dos cinco itens</h3>
+            <h3>Textos que aparecem no checklist</h3>
+            <p className="notice amber">
+              Escreva cada item como uma instrução curta para o inspetor. Nos
+              itens 3, 4 e 5, informe como realizar a medição; os limites
+              cadastrados acima aparecerão separadamente e serão usados no
+              resultado automático.
+            </p>
             <div className="fields">
               {(
                 [
-                  ['physical', '1 · Condições do equipamento'],
-                  ['solder', '2 · Validade do fio de solda'],
-                  ['resistance', '3 · Resistência'],
-                  ['voltage', '4 · Tensão residual'],
-                  ['temperature', '5 · Temperatura'],
+                  [
+                    'physical',
+                    '1 · Inspeção visual do equipamento',
+                    'Informe quais partes devem ser verificadas, como cabo, ponta e esponja.',
+                  ],
+                  [
+                    'solder',
+                    '2 · Validade do material',
+                    'Informe qual material deve ter a validade conferida.',
+                  ],
+                  [
+                    'resistance',
+                    '3 · Medição de resistência',
+                    'Explique entre quais pontos a resistência deve ser medida.',
+                  ],
+                  [
+                    'voltage',
+                    '4 · Medição de tensão residual',
+                    'Explique entre quais pontos a tensão deve ser medida.',
+                  ],
+                  [
+                    'temperature',
+                    '5 · Medição de temperatura',
+                    'Informe onde deve ser medida a temperatura do ferro de solda.',
+                  ],
                 ] as const
-              ).map(([key, label]) => (
+              ).map(([key, label, help]) => (
                 <label className="field" key={key}>
-                  {label}
+                  <strong>{label}</strong>
+                  <span className="draft-note">{help}</span>
                   <Textarea
                     required
                     name={`check-${key}`}
                     maxLength={500}
                     rows={3}
+                    aria-label={`Texto do item ${label}`}
                     defaultValue={stationCheckDescriptions(editing)[key]}
                   />
                 </label>
