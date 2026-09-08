@@ -13,6 +13,7 @@ export interface Limits {
 }
 export interface Station {
   id: string;
+  revision?: number;
   line: string;
   code: string;
   model: string;

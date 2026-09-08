@@ -1,6 +1,6 @@
 'use client';
 import { useState, useEffect, useRef, type SubmitEvent } from 'react';
-import { Factory, QrCode, Plus, Printer, X } from 'lucide-react';
+import { Factory, Pencil, QrCode, Plus, Printer, X } from 'lucide-react';
 import QRCode from 'qrcode';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
@@ -12,7 +12,7 @@ import {
   type LocalRow,
 } from '@/lib/inspection/types';
 import { validateStation } from '@/lib/inspection/validation';
-import { addStation } from '@/lib/offline/database';
+import { addStation, updateStation } from '@/lib/offline/database';
 export function Stations({
   stations,
   onSaved,
@@ -23,6 +23,7 @@ export function Stations({
   onInspect: (id: string) => void;
 }) {
   const [adding, setAdding] = useState(false),
+    [editing, setEditing] = useState<Station>(),
     [qr, setQr] = useState<Station>(),
     [error, setError] = useState(''),
     [busy, setBusy] = useState(false);
@@ -34,7 +35,8 @@ export function Stations({
     const f = new FormData(form);
     try {
       const s = validateStation({
-        id: crypto.randomUUID(),
+        id: editing?.id ?? crypto.randomUUID(),
+        revision: editing?.revision ?? 1,
         line: f.get('line'),
         code: f.get('code'),
         model: f.get('model'),
@@ -46,11 +48,13 @@ export function Stations({
           resistance: Number(f.get('resistance')),
           voltage: Number(f.get('voltage')),
         },
-        createdAt: new Date().toISOString(),
+        createdAt: editing?.createdAt ?? new Date().toISOString(),
       });
-      await addStation(s);
+      if (editing) await updateStation(s);
+      else await addStation(s);
       await onSaved();
       setAdding(false);
+      setEditing(undefined);
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Falha no cadastro');
     } finally {
@@ -60,13 +64,19 @@ export function Stations({
   return (
     <>
       <div className="toolbar no-print" style={{ marginBottom: 22 }}>
-        <Button className="action" onClick={() => setAdding(!adding)}>
+        <Button
+          className="action"
+          onClick={() => {
+            setEditing(undefined);
+            setAdding(!adding);
+          }}
+        >
           <Plus />
           Cadastrar estação
         </Button>
       </div>
       {adding && (
-        <Panel title="Cadastro de estação">
+        <Panel title={editing ? 'Editar estação' : 'Cadastro de estação'}>
           <form className="panel-body" onSubmit={submit}>
             <p className="notice amber">
               Os valores iniciais foram transcritos das fotos. Confira os
@@ -95,6 +105,18 @@ export function Stations({
                     name={name}
                     maxLength={160}
                     placeholder={placeholder}
+                    defaultValue={
+                      editing?.[
+                        name as keyof Pick<
+                          Station,
+                          | 'line'
+                          | 'code'
+                          | 'model'
+                          | 'instrument'
+                          | 'approvedBy'
+                        >
+                      ]
+                    }
                   />
                 </label>
               ))}
@@ -114,6 +136,7 @@ export function Stations({
                     max="2000"
                     step="0.01"
                     defaultValue={
+                      editing?.limits[name as keyof typeof DEFAULT_LIMITS] ??
                       DEFAULT_LIMITS[name as keyof typeof DEFAULT_LIMITS]
                     }
                   />
@@ -130,9 +153,27 @@ export function Stations({
                 O posto identifica a estação dentro da linha. Campos não
                 informados ficam pendentes.
               </p>
-              <Button type="submit" disabled={busy} className="action">
-                {busy ? 'Salvando…' : 'Salvar estação'}
-              </Button>
+              <div className="toolbar">
+                {editing && (
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    onClick={() => {
+                      setEditing(undefined);
+                      setAdding(false);
+                    }}
+                  >
+                    Cancelar
+                  </Button>
+                )}
+                <Button type="submit" disabled={busy} className="action">
+                  {busy
+                    ? 'Salvando…'
+                    : editing
+                      ? 'Salvar alterações'
+                      : 'Salvar estação'}
+                </Button>
+              </div>
             </div>
           </form>
         </Panel>
@@ -198,6 +239,16 @@ export function Stations({
                 <Button variant="ghost" onClick={() => setQr(s.data)}>
                   <QrCode />
                   Etiqueta QR
+                </Button>
+                <Button
+                  variant="ghost"
+                  onClick={() => {
+                    setEditing(s.data);
+                    setAdding(true);
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                  }}
+                >
+                  <Pencil /> Editar
                 </Button>
               </footer>
             </article>

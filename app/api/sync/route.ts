@@ -60,6 +60,35 @@ export async function POST(request: Request) {
           .bind(data.id)
           .first<{ payload: string }>();
         if (existing) {
+          if (kind === 'stations' && existing.payload !== payload) {
+            const current = validateStation(JSON.parse(existing.payload));
+            const incoming = validateStation(data);
+            if ((incoming.revision ?? 1) === (current.revision ?? 1) + 1) {
+              const key = `${incoming.line.toLowerCase()}|${incoming.code.toLowerCase()}`;
+              const duplicate = await db
+                .prepare(
+                  'SELECT id FROM stations WHERE station_key = ? AND id <> ?',
+                )
+                .bind(key, incoming.id)
+                .first<{ id: string }>();
+              if (duplicate) {
+                results.push({
+                  id: data.id,
+                  status: 'conflict',
+                  error: 'Esta estação já está cadastrada nesta linha.',
+                });
+                continue;
+              }
+              await db
+                .prepare(
+                  'UPDATE stations SET station_key = ?, payload = ? WHERE id = ?',
+                )
+                .bind(key, payload, incoming.id)
+                .run();
+              results.push({ id: data.id, status: 'synced' });
+              continue;
+            }
+          }
           results.push({
             id: data.id,
             status: existing.payload === payload ? 'synced' : 'conflict',
@@ -84,11 +113,6 @@ export async function POST(request: Request) {
             .first<{ payload: string }>();
           if (!station)
             throw new Error('A estação precisa ser sincronizada primeiro.');
-          const limits = (JSON.parse(station.payload) as Station).limits;
-          if (JSON.stringify(limits) !== JSON.stringify(i.limits))
-            throw new Error(
-              'Os limites diferem do cadastro da estação. Revise o registro.',
-            );
           await db
             .prepare(
               'INSERT INTO inspections (id,business_key,station_id,payload) VALUES (?,?,?,?) ON CONFLICT DO NOTHING',

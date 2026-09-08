@@ -88,6 +88,28 @@ export async function addStation(data: Station) {
     throw new Error('Esta estação já está cadastrada nesta linha.');
   await put('stations', { id: data.id, data, status: 'pending' });
 }
+export async function updateStation(data: Station) {
+  const existing = await all<LocalRow<Station>>('stations');
+  if (
+    existing.some(
+      (r) =>
+        r.id !== data.id &&
+        r.data.line.toLowerCase() === data.line.toLowerCase() &&
+        r.data.code.toLowerCase() === data.code.toLowerCase(),
+    )
+  )
+    throw new Error('Esta estação já está cadastrada nesta linha.');
+  const current = existing.find((r) => r.id === data.id);
+  if (!current) throw new Error('Estação não encontrada neste aparelho.');
+  if (current.status === 'pending')
+    await put('stations', { id: data.id, data, status: 'pending' });
+  else
+    await put('stations', {
+      id: data.id,
+      data: { ...data, revision: (current.data.revision ?? 1) + 1 },
+      status: 'pending',
+    });
+}
 export async function setting<T>(id: string): Promise<T | undefined> {
   const rows = await all<{ id: string; value: T }>('settings');
   return rows.find((r) => r.id === id)?.value;

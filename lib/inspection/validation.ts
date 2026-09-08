@@ -12,6 +12,8 @@ export function validateStation(x: unknown): Station {
   if (
     !s ||
     !text(s.id, 80) ||
+    (s.revision !== undefined &&
+      (!Number.isSafeInteger(s.revision) || s.revision < 1)) ||
     !text(s.line) ||
     !text(s.code) ||
     !text(s.model) ||
@@ -30,6 +32,7 @@ export function validateStation(x: unknown): Station {
     );
   return {
     id: s.id,
+    revision: s.revision ?? 1,
     line: s.line.trim(),
     code: s.code.trim(),
     model: s.model.trim(),

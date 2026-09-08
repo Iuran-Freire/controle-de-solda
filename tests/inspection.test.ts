@@ -8,12 +8,19 @@ import {
   businessKey,
   type Inspection,
   type LocalRow,
+  type Station,
 } from '../lib/inspection/types';
 import {
   validateInspection,
   validateStation,
 } from '../lib/inspection/validation';
-import { addInspection, all } from '../lib/offline/database';
+import {
+  addInspection,
+  addStation,
+  all,
+  put,
+  updateStation,
+} from '../lib/offline/database';
 import { synchronize } from '../lib/offline/sync';
 void test('cadastro por posto preserva dados desconhecidos em branco', () => {
   const station = {
@@ -30,6 +37,28 @@ void test('cadastro por posto preserva dados desconhecidos em branco', () => {
   assert.equal(validateStation(station).approvedBy, '');
   assert.throws(() => validateStation({ ...station, code: '' }));
   assert.throws(() => validateStation({ ...station, instrument: 123 }));
+});
+void test('edição mantém o ID e incrementa a revisão após sincronização', async () => {
+  const station = validateStation({
+    id: 'posto-edicao',
+    line: 'Linha 2',
+    code: 'Soldagem Inlet',
+    model: 'LG 24W',
+    instrument: '',
+    approvedBy: '',
+    limits: DEFAULT_LIMITS,
+    createdAt: '2026-09-01T12:00:00Z',
+  });
+  await addStation(station);
+  await put('stations', { id: station.id, data: station, status: 'synced' });
+  await updateStation({ ...station, instrument: 'INST-01' });
+  const edited = (await all<LocalRow<Station>>('stations')).find(
+    (row) => row.id === station.id,
+  )!;
+  assert.equal(edited.id, station.id);
+  assert.equal(edited.data.instrument, 'INST-01');
+  assert.equal(edited.data.revision, 2);
+  assert.equal(edited.status, 'pending');
 });
 const record = (id: string, temperature = 450): Inspection => ({
   id,
