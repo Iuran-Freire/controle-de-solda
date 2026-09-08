@@ -19,6 +19,7 @@ export interface Station {
   model: string;
   instrument: string;
   limits: Limits;
+  checks?: import('./check-descriptions').CheckDescriptions;
   approvedBy: string;
   createdAt: string;
 }

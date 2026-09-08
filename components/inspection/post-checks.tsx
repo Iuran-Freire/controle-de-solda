@@ -2,7 +2,7 @@
 import { Input } from '@/components/ui/input';
 import { Panel } from './shared';
 import type { Station } from '@/lib/inspection/types';
-import { CHECK_DESCRIPTIONS } from '@/lib/inspection/check-descriptions';
+import { stationCheckDescriptions } from '@/lib/inspection/check-descriptions';
 type CheckKey =
   | 'physical'
   | 'solder'
@@ -26,11 +26,12 @@ export function PostChecks({
     voltage: values.voltage,
     temperature: values.temperature,
   }).filter((v) => v !== '').length;
+  const descriptions = stationCheckDescriptions(station);
   const numeric = [
     {
       key: 'resistance' as const,
       number: 3,
-      title: CHECK_DESCRIPTIONS.resistance,
+      title: descriptions.resistance,
       unit: 'Ω',
       criterion: station
         ? `≤ ${station.limits.resistance} Ω`
@@ -40,7 +41,7 @@ export function PostChecks({
     {
       key: 'voltage' as const,
       number: 4,
-      title: CHECK_DESCRIPTIONS.voltage,
+      title: descriptions.voltage,
       unit: 'mV',
       criterion: station
         ? `≤ ${station.limits.voltage} mV`
@@ -50,7 +51,7 @@ export function PostChecks({
     {
       key: 'temperature' as const,
       number: 5,
-      title: CHECK_DESCRIPTIONS.temperature,
+      title: descriptions.temperature,
       unit: '°C',
       criterion: station
         ? `${station.limits.min} °C a ${station.limits.max} °C`
@@ -77,12 +78,12 @@ export function PostChecks({
             {
               key: 'physical',
               number: 1,
-              title: CHECK_DESCRIPTIONS.physical,
+              title: descriptions.physical,
             },
             {
               key: 'solder',
               number: 2,
-              title: CHECK_DESCRIPTIONS.solder,
+              title: descriptions.solder,
             },
           ] as const
         ).map((item) => (

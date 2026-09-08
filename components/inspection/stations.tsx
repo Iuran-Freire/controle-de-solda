@@ -5,6 +5,7 @@ import QRCode from 'qrcode';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
 import { Panel, Empty, SyncBadge } from './shared';
 import {
   DEFAULT_LIMITS,
@@ -12,6 +13,11 @@ import {
   type LocalRow,
 } from '@/lib/inspection/types';
 import { validateStation } from '@/lib/inspection/validation';
+import {
+  CHECK_DESCRIPTIONS,
+  stationCheckDescriptions,
+  type CheckDescriptions,
+} from '@/lib/inspection/check-descriptions';
 import { addStation, updateStation } from '@/lib/offline/database';
 export function Stations({
   stations,
@@ -48,6 +54,11 @@ export function Stations({
           resistance: Number(f.get('resistance')),
           voltage: Number(f.get('voltage')),
         },
+        checks: Object.fromEntries(
+          (Object.keys(CHECK_DESCRIPTIONS) as (keyof CheckDescriptions)[]).map(
+            (key) => [key, f.get(`check-${key}`)],
+          ),
+        ),
         createdAt: editing?.createdAt ?? new Date().toISOString(),
       });
       if (editing) await updateStation(s);
@@ -77,7 +88,11 @@ export function Stations({
       </div>
       {adding && (
         <Panel title={editing ? 'Editar estação' : 'Cadastro de estação'}>
-          <form className="panel-body" onSubmit={submit}>
+          <form
+            key={editing?.id ?? 'new'}
+            className="panel-body"
+            onSubmit={submit}
+          >
             <p className="notice amber">
               Os valores iniciais foram transcritos das fotos. Confira os
               critérios e as unidades com a qualidade antes de usar o cadastro.
@@ -139,6 +154,30 @@ export function Stations({
                       editing?.limits[name as keyof typeof DEFAULT_LIMITS] ??
                       DEFAULT_LIMITS[name as keyof typeof DEFAULT_LIMITS]
                     }
+                  />
+                </label>
+              ))}
+            </div>
+            <div className="separator" />
+            <h3>Descrições dos cinco itens</h3>
+            <div className="fields">
+              {(
+                [
+                  ['physical', '1 · Condições do equipamento'],
+                  ['solder', '2 · Validade do fio de solda'],
+                  ['resistance', '3 · Resistência'],
+                  ['voltage', '4 · Tensão residual'],
+                  ['temperature', '5 · Temperatura'],
+                ] as const
+              ).map(([key, label]) => (
+                <label className="field" key={key}>
+                  {label}
+                  <Textarea
+                    required
+                    name={`check-${key}`}
+                    maxLength={500}
+                    rows={3}
+                    defaultValue={stationCheckDescriptions(editing)[key]}
                   />
                 </label>
               ))}

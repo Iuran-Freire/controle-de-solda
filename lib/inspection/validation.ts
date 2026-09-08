@@ -1,8 +1,21 @@
 import { businessKey, resultOf, type Inspection, type Station } from './types';
+import {
+  CHECK_DESCRIPTIONS,
+  type CheckDescriptions,
+} from './check-descriptions';
 const text = (x: unknown, max = 160): x is string =>
   typeof x === 'string' && x.trim().length > 0 && x.length <= max;
 const optionalText = (x: unknown): x is string =>
   typeof x === 'string' && x.length <= 160;
+const descriptions = (x: unknown): x is CheckDescriptions => {
+  const value = x as CheckDescriptions;
+  return (
+    !!value &&
+    (Object.keys(CHECK_DESCRIPTIONS) as (keyof CheckDescriptions)[]).every(
+      (key) => text(value[key], 500),
+    )
+  );
+};
 const num = (x: unknown, max = 2000): x is number =>
   typeof x === 'number' && Number.isFinite(x) && x >= 0 && x <= max;
 const date = (x: unknown) =>
@@ -24,6 +37,7 @@ export function validateStation(x: unknown): Station {
     s.limits.min >= s.limits.max ||
     !num(s.limits.resistance) ||
     !num(s.limits.voltage) ||
+    (s.checks !== undefined && !descriptions(s.checks)) ||
     !optionalText(s.approvedBy) ||
     !date(s.createdAt)
   )
@@ -43,6 +57,11 @@ export function validateStation(x: unknown): Station {
       resistance: s.limits.resistance,
       voltage: s.limits.voltage,
     },
+    checks: s.checks
+      ? (Object.fromEntries(
+          Object.entries(s.checks).map(([key, value]) => [key, value.trim()]),
+        ) as unknown as CheckDescriptions)
+      : CHECK_DESCRIPTIONS,
     approvedBy: s.approvedBy.trim(),
     createdAt: s.createdAt,
   };
