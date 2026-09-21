@@ -1,16 +1,16 @@
-import { CHECK_DESCRIPTIONS } from '@/lib/inspection/check-descriptions';
+import { CHECK_DESCRIPTIONS } from '@/src/domain/inspection/check-descriptions';
 import {
   shiftComparisons,
   momentValue,
   difference,
   type NumericCheck,
-} from '@/lib/inspection/shift-comparison';
+} from '@/src/domain/inspection/shift-comparison';
 import type {
   Inspection,
   LocalRow,
   Station,
   Moment,
-} from '@/lib/inspection/types';
+} from '@/src/domain/inspection/types';
 const checks = [
   { key: 'resistance', number: 3, unit: 'Ω' },
   { key: 'voltage', number: 4, unit: 'mV' },

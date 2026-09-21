@@ -11,18 +11,18 @@ import {
   DEFAULT_LIMITS,
   type Station,
   type LocalRow,
-} from '@/lib/inspection/types';
-import { validateStation } from '@/lib/inspection/validation';
+} from '@/src/domain/inspection/types';
+import { validateStation } from '@/src/domain/inspection/validation';
 import {
   CHECK_DESCRIPTIONS,
   stationCheckDescriptions,
   type CheckDescriptions,
-} from '@/lib/inspection/check-descriptions';
+} from '@/src/domain/inspection/check-descriptions';
 import {
   addStation,
   deleteStation,
   updateStation,
-} from '@/lib/offline/database';
+} from '@/src/application/inspection/inspection-storage';
 export function Stations({
   stations,
   onSaved,

@@ -1,8 +1,8 @@
 'use client';
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { all, setting } from '@/lib/offline/database';
-import { synchronize } from '@/lib/offline/sync';
-import type { Inspection, Station, LocalRow } from '@/lib/inspection/types';
+import { all, setting } from '@/src/infrastructure/offline/database';
+import { synchronize } from '@/src/infrastructure/offline/sync';
+import type { Inspection, Station, LocalRow } from '@/src/domain/inspection/types';
 export function useInspections() {
   const [stations, setStations] = useState<LocalRow<Station>[]>([]),
     [allStations, setAllStations] = useState<LocalRow<Station>[]>([]),

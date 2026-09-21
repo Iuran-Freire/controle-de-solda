@@ -1,7 +1,7 @@
 import { jsPDF } from 'jspdf';
 
-import { chartNumber, measurementTicks } from './chart-scale';
-import type { Inspection } from './types';
+import { chartNumber, measurementTicks } from '@/src/domain/inspection/chart-scale';
+import type { Inspection } from '@/src/domain/inspection/types';
 export function chart(
   doc: jsPDF,
   x: number,

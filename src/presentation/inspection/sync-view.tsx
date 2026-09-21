@@ -2,8 +2,8 @@
 import { RefreshCw, Download, HardDrive, TriangleAlert } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Panel, SyncBadge, Empty, download } from './shared';
-import { formatTime } from '@/lib/inspection/types';
-import type { InspectionState } from '@/hooks/use-inspections';
+import { formatTime } from '@/src/domain/inspection/types';
+import type { InspectionState } from '@/src/application/inspection/use-inspections';
 export function SyncView({ state }: { state: InspectionState }) {
   const pending = [...state.stations, ...state.inspections].filter(
     (r) => r.status !== 'synced',

@@ -8,7 +8,7 @@ import {
   Tooltip,
 } from 'recharts';
 import { ChartContainer } from '@/components/ui/chart';
-import { imr, type Inspection } from '@/lib/inspection/types';
+import { imr, type Inspection } from '@/src/domain/inspection/types';
 import { Panel } from './shared';
 
 const checks = [

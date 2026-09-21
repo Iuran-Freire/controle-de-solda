@@ -9,13 +9,13 @@ import {
   reportEnd,
   reportRows,
   type ReportFilter,
-} from '@/lib/inspection/report';
+} from '@/src/domain/inspection/report';
 import {
   localDate,
   type Inspection,
   type LocalRow,
   type Station,
-} from '@/lib/inspection/types';
+} from '@/src/domain/inspection/types';
 async function asset(path: string) {
   const response = await fetch(path);
   if (!response.ok)
@@ -49,7 +49,7 @@ export function ExportPdf({
     setMessage('');
     try {
       const [{ createReportPdf }, font, logo] = await Promise.all([
-        import('@/lib/inspection/report-pdf'),
+        import('@/src/application/reporting/report-pdf'),
         asset('/fonts/NotoSans-Regular.ttf'),
         asset('/inventus-report-logo.png'),
       ]);

@@ -9,11 +9,11 @@ import {
   type Inspection,
   type LocalRow,
   type Station,
-} from '../lib/inspection/types';
+} from '../src/domain/inspection/types';
 import {
   validateInspection,
   validateStation,
-} from '../lib/inspection/validation';
+} from '../src/domain/inspection/validation';
 import {
   addInspection,
   addStation,
@@ -21,9 +21,9 @@ import {
   deleteStation,
   put,
   updateStation,
-} from '../lib/offline/database';
-import { synchronize } from '../lib/offline/sync';
-import { inProductionMonth } from '../lib/inspection/period';
+} from '../src/infrastructure/offline/database';
+import { synchronize } from '../src/infrastructure/offline/sync';
+import { inProductionMonth } from '../src/domain/inspection/period';
 void test('filtro mensal usa a data de produção', () => {
   assert.equal(inProductionMonth('2026-09-01', '2026-09'), true);
   assert.equal(inProductionMonth('2026-10-01', '2026-09'), false);

@@ -26,18 +26,31 @@ Acesse a URL informada no terminal. Tarefas também disponíveis no menu Termina
 ## Estrutura
 
 ```text
-app/                       Entrada, layout, estilos e API /api/sync
-components/inspection/     Painel, checklist, estações/QR, histórico, gráficos, sincronização
-components/ui/             Primitivos acessíveis shadcn
-hooks/use-inspections.ts   Estado compartilhado e atualização da fila
-lib/inspection/            Tipos, validação, critérios e cálculo I-MR
-lib/offline/               IndexedDB, rascunhos e envio idempotente
-lib/server/                Acesso ao banco central
+app/                       Entradas HTTP, layout, estilos e API /api/sync
+src/presentation/          Telas do controle de solda
+src/application/           Estado, casos de uso e geração de relatórios
+src/domain/                Tipos, validação, critérios e cálculos puros
+src/infrastructure/        IndexedDB, sincronização e acesso ao Cloudflare D1
+components/ui/             Primitivos acessíveis shadcn compartilhados
 db/schema.ts               Esquema Drizzle
 drizzle/                   Migrações versionadas
 public/                    Manifesto PWA e ícone
 scripts/                   Preparação offline e testes
 ```
+
+### Dependências entre camadas
+
+```text
+app → presentation → application → infrastructure
+                 ↘       ↓
+                     domain
+```
+
+- `domain` contém as regras que podem ser testadas sem navegador ou banco.
+- `application` coordena os casos de uso, o estado compartilhado e os relatórios.
+- `infrastructure` implementa armazenamento local, sincronização e banco central.
+- `presentation` contém as telas e depende dos casos de uso expostos por `application`.
+- `app` adapta as entradas do framework: página principal e rota HTTP de sincronização.
 
 ## Stack efetivamente usada
 

@@ -1,4 +1,4 @@
-import type { LocalRow, Station, Inspection } from '../inspection/types';
+import type { LocalRow, Station, Inspection } from '@/src/domain/inspection/types';
 export type StoreName = 'stations' | 'inspections' | 'settings';
 let connection: Promise<IDBDatabase> | undefined;
 function db() {

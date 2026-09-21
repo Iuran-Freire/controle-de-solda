@@ -13,8 +13,8 @@ import {
   type Inspection,
   type Station,
   type LocalRow,
-} from '@/lib/inspection/types';
-import { inProductionMonth } from '@/lib/inspection/period';
+} from '@/src/domain/inspection/types';
+import { inProductionMonth } from '@/src/domain/inspection/period';
 export function InspectionTable({
   rows,
   stations,

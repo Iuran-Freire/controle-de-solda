@@ -1,8 +1,8 @@
 'use client';
 import { Input } from '@/components/ui/input';
 import { Panel } from './shared';
-import type { Station } from '@/lib/inspection/types';
-import { stationCheckDescriptions } from '@/lib/inspection/check-descriptions';
+import type { Station } from '@/src/domain/inspection/types';
+import { stationCheckDescriptions } from '@/src/domain/inspection/check-descriptions';
 type CheckKey =
   | 'physical'
   | 'solder'

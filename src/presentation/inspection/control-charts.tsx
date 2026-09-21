@@ -19,7 +19,7 @@ import {
   type Station,
   type Inspection,
   type LocalRow,
-} from '@/lib/inspection/types';
+} from '@/src/domain/inspection/types';
 export function ControlCharts({
   stations,
   rows,

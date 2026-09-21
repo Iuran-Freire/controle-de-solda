@@ -1,5 +1,5 @@
 import { all, put, setSetting } from './database';
-import type { Inspection, Station, LocalRow } from '../inspection/types';
+import type { Inspection, Station, LocalRow } from '@/src/domain/inspection/types';
 let running: Promise<{ sent: number }> | undefined;
 type SyncResponse = {
   results?: { id: string; status: string; error?: string }[];

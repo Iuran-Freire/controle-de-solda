@@ -1,7 +1,8 @@
 # Manutenção do Controle de Solda
 
 - Mantenha a interface em português do Brasil e os textos claros para inspetores.
-- Separe componentes por funcionalidade em `components/inspection`, regras puras em `lib/inspection`, persistência local em `lib/offline` e acesso D1 em `lib/server`.
+- Mantenha o módulo de inspeção dividido em camadas dentro de `src`: interface em `presentation`, orquestração em `application`, regras puras em `domain` e integrações em `infrastructure`.
+- A camada `domain` não deve importar React, navegador, Cloudflare ou bibliotecas de interface. A camada `presentation` pode depender de `application` e `domain`; `infrastructure` implementa persistência e serviços externos.
 - Salve localmente antes de tentar enviar. Só marque como sincronizado após confirmação explícita do servidor para o mesmo ID e conteúdo.
 - Nunca descarte registros pendentes, sobrescreva conflitos ou misture séries I-MR de estações diferentes.
 - Preserve a hora da medição, a hora do lançamento, a data de produção e o snapshot dos limites.

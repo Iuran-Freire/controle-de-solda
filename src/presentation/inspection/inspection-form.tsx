@@ -16,9 +16,13 @@ import {
   type Inspection,
   type Station,
   type LocalRow,
-} from '@/lib/inspection/types';
-import { validateInspection } from '@/lib/inspection/validation';
-import { addInspection, setting, setSetting } from '@/lib/offline/database';
+} from '@/src/domain/inspection/types';
+import { validateInspection } from '@/src/domain/inspection/validation';
+import {
+  addInspection,
+  setting,
+  setSetting,
+} from '@/src/application/inspection/inspection-storage';
 type Draft = {
   stationId: string;
   inspector: string;

@@ -4,7 +4,7 @@ import {
   measurementDomain,
   measurementTicks,
   chartNumber,
-} from '../lib/inspection/chart-scale';
+} from '../src/domain/inspection/chart-scale';
 void test('intervalos simples e uniformes para pequenas variações', () => {
   assert.deepEqual(measurementTicks([0.4, 0.6, 0.9]), [0.2, 0.4, 0.6, 0.8, 1]);
 });

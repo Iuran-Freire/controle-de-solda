@@ -1,10 +1,10 @@
-import { database } from '@/lib/server/database';
+import { database } from '@/src/infrastructure/server/database';
 import {
   validateStation,
   validateInspection,
   businessKey,
-} from '@/lib/inspection/validation';
-import type { Station } from '@/lib/inspection/types';
+} from '@/src/domain/inspection/validation';
+import type { Station } from '@/src/domain/inspection/types';
 const json = (data: unknown, status = 200) =>
   Response.json(data, { status, headers: { 'Cache-Control': 'no-store' } });
 export async function GET(request: Request) {

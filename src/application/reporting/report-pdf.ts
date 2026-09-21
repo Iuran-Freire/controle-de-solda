@@ -1,10 +1,10 @@
 import { jsPDF } from 'jspdf';
 import { autoTable } from 'jspdf-autotable';
 import { chart } from './report-charts-pdf';
-import { chartNumber } from './chart-scale';
-import { reportEnd, reportRows, type ReportFilter } from './report';
-import { shiftComparisons } from './shift-comparison';
-import type { Inspection, LocalRow, Station } from './types';
+import { chartNumber } from '@/src/domain/inspection/chart-scale';
+import { reportEnd, reportRows, type ReportFilter } from '@/src/domain/inspection/report';
+import { shiftComparisons } from '@/src/domain/inspection/shift-comparison';
+import type { Inspection, LocalRow, Station } from '@/src/domain/inspection/types';
 const date = (value: string) => value.split('-').reverse().join('/');
 const metrics = [
   { key: 'resistance', title: 'Resistência', unit: 'Ω' },

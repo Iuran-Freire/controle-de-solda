@@ -1,6 +1,6 @@
 import { ClipboardCheck } from 'lucide-react';
 import type { ReactNode } from 'react';
-import type { SyncStatus } from '@/lib/inspection/types';
+import type { SyncStatus } from '@/src/domain/inspection/types';
 export function Panel({
   title,
   aside,

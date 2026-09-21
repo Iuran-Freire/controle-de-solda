@@ -1,6 +1,6 @@
 "use client";
 import { useState, useCallback, useEffect } from "react";
-import { applyAppUpdate } from "@/lib/offline/app-update";
+import { applyAppUpdate } from "@/src/application/inspection/inspection-storage";
 import Image from "next/image";
 import {
   Activity,
@@ -24,15 +24,15 @@ import {
 import { Button } from "@/components/ui/button";
 import { NativeSelect } from "@/components/ui/native-select";
 import { Input } from "@/components/ui/input";
-import { useInspections } from "@/hooks/use-inspections";
+import { useInspections } from "@/src/application/inspection/use-inspections";
 import { InspectionForm } from "./inspection-form";
 import { Stations, Scanner } from "./stations";
 import { HistoryView, InspectionTable } from "./history";
 import { ControlCharts } from "./control-charts";
 import { SyncView } from "./sync-view";
 import { Panel } from "./shared";
-import { localDate } from "@/lib/inspection/types";
-import { setting, setSetting } from "@/lib/offline/database";
+import { localDate } from "@/src/domain/inspection/types";
+import { setting, setSetting } from "@/src/application/inspection/inspection-storage";
 type View =
   | "overview"
   | "inspection"

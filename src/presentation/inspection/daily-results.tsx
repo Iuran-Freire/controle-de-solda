@@ -1,7 +1,7 @@
 'use client';
 import { useState } from 'react';
 import { ShiftTables } from './shift-tables';
-import { CHECK_DESCRIPTIONS } from '@/lib/inspection/check-descriptions';
+import { CHECK_DESCRIPTIONS } from '@/src/domain/inspection/check-descriptions';
 import {
   BarChart,
   Bar,
@@ -18,14 +18,14 @@ import { Input } from '@/components/ui/input';
 import { NativeSelect } from '@/components/ui/native-select';
 import { ChartContainer } from '@/components/ui/chart';
 import { Panel, Empty } from './shared';
-import { dailyResults } from '@/lib/inspection/daily-results';
+import { dailyResults } from '@/src/domain/inspection/daily-results';
 import {
   measurementDomain,
   measurementTicks,
   chartNumber,
-} from '@/lib/inspection/chart-scale';
-import { formatTime } from '@/lib/inspection/types';
-import type { Station, Inspection, LocalRow } from '@/lib/inspection/types';
+} from '@/src/domain/inspection/chart-scale';
+import { formatTime } from '@/src/domain/inspection/types';
+import type { Station, Inspection, LocalRow } from '@/src/domain/inspection/types';
 export function DailyResults({
   station,
   rows,
