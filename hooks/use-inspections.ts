@@ -5,6 +5,7 @@ import { synchronize } from '@/lib/offline/sync';
 import type { Inspection, Station, LocalRow } from '@/lib/inspection/types';
 export function useInspections() {
   const [stations, setStations] = useState<LocalRow<Station>[]>([]),
+    [allStations, setAllStations] = useState<LocalRow<Station>[]>([]),
     [inspections, setInspections] = useState<LocalRow<Inspection>[]>([]),
     [online, setOnline] = useState(true),
     [syncing, setSyncing] = useState(false),
@@ -20,7 +21,8 @@ export function useInspections() {
       all<LocalRow<Inspection>>('inspections'),
       setting<string>('lastSync'),
     ]);
-    setStations(s);
+    setAllStations(s);
+    setStations(s.filter((row) => !row.data.deletedAt));
     setInspections(
       i.sort((a, b) => b.data.measuredAt.localeCompare(a.data.measuredAt)),
     );
@@ -86,6 +88,7 @@ export function useInspections() {
   }, []);
   return {
     stations,
+    allStations,
     inspections,
     online,
     syncing,

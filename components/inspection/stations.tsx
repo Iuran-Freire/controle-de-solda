@@ -1,6 +1,6 @@
 'use client';
 import { useState, useEffect, useRef, type SubmitEvent } from 'react';
-import { Factory, Pencil, QrCode, Plus, Printer, X } from 'lucide-react';
+import { Factory, Pencil, QrCode, Plus, Printer, Trash2, X } from 'lucide-react';
 import QRCode from 'qrcode';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
@@ -18,7 +18,11 @@ import {
   stationCheckDescriptions,
   type CheckDescriptions,
 } from '@/lib/inspection/check-descriptions';
-import { addStation, updateStation } from '@/lib/offline/database';
+import {
+  addStation,
+  deleteStation,
+  updateStation,
+} from '@/lib/offline/database';
 export function Stations({
   stations,
   onSaved,
@@ -68,6 +72,22 @@ export function Stations({
       setEditing(undefined);
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Falha no cadastro');
+    } finally {
+      setBusy(false);
+    }
+  }
+  async function remove(station: Station) {
+    const confirmed = window.confirm(
+      `Excluir a estação ${station.line} · ${station.code}?\n\nEla deixará de aparecer em todos os dispositivos após a sincronização. As inspeções já registradas serão preservadas.`,
+    );
+    if (!confirmed) return;
+    setBusy(true);
+    setError('');
+    try {
+      await deleteStation(station.id);
+      await onSaved();
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'Falha ao excluir a estação.');
     } finally {
       setBusy(false);
     }
@@ -316,6 +336,13 @@ export function Stations({
                   }}
                 >
                   <Pencil /> Editar
+                </Button>
+                <Button
+                  variant="ghost"
+                  disabled={busy}
+                  onClick={() => void remove(s.data)}
+                >
+                  <Trash2 /> Excluir
                 </Button>
               </footer>
             </article>

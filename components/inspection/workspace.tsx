@@ -483,7 +483,10 @@ export function Workspace() {
             />
           )}
           {view === "history" && (
-            <HistoryView rows={state.inspections} stations={state.stations} />
+            <HistoryView
+              rows={state.inspections}
+              stations={state.allStations}
+            />
           )}
           {view === "charts" && (
             <ControlCharts rows={state.inspections} stations={state.stations} />

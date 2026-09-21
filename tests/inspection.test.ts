@@ -18,6 +18,7 @@ import {
   addInspection,
   addStation,
   all,
+  deleteStation,
   put,
   updateStation,
 } from '../lib/offline/database';
@@ -66,6 +67,27 @@ void test('edição mantém o ID e incrementa a revisão após sincronização',
   assert.equal(edited.data.instrument, 'INST-01');
   assert.equal(edited.data.revision, 2);
   assert.equal(edited.status, 'pending');
+});
+void test('exclusão preserva a estação como remoção pendente para sincronizar', async () => {
+  const station = validateStation({
+    id: 'posto-exclusao',
+    line: 'Linha 2',
+    code: 'Posto para excluir',
+    model: 'LG 24W',
+    instrument: '',
+    approvedBy: '',
+    limits: DEFAULT_LIMITS,
+    createdAt: '2026-09-01T12:00:00Z',
+  });
+  await addStation(station);
+  await put('stations', { id: station.id, data: station, status: 'synced' });
+  await deleteStation(station.id);
+  const deleted = (await all<LocalRow<Station>>('stations')).find(
+    (row) => row.id === station.id,
+  )!;
+  assert.equal(deleted.status, 'pending');
+  assert.equal(deleted.data.revision, 2);
+  assert.ok(deleted.data.deletedAt);
 });
 const record = (id: string, temperature = 450): Inspection => ({
   id,

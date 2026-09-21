@@ -27,6 +27,7 @@ export function validateStation(x: unknown): Station {
     !text(s.id, 80) ||
     (s.revision !== undefined &&
       (!Number.isSafeInteger(s.revision) || s.revision < 1)) ||
+    (s.deletedAt !== undefined && !date(s.deletedAt)) ||
     !text(s.line) ||
     !text(s.code) ||
     !text(s.model) ||
@@ -47,6 +48,7 @@ export function validateStation(x: unknown): Station {
   return {
     id: s.id,
     revision: s.revision ?? 1,
+    ...(s.deletedAt ? { deletedAt: s.deletedAt } : {}),
     line: s.line.trim(),
     code: s.code.trim(),
     model: s.model.trim(),

@@ -64,20 +64,24 @@ export async function POST(request: Request) {
             const current = validateStation(JSON.parse(existing.payload));
             const incoming = validateStation(data);
             if ((incoming.revision ?? 1) === (current.revision ?? 1) + 1) {
-              const key = `${incoming.line.toLowerCase()}|${incoming.code.toLowerCase()}`;
-              const duplicate = await db
-                .prepare(
-                  'SELECT id FROM stations WHERE station_key = ? AND id <> ?',
-                )
-                .bind(key, incoming.id)
-                .first<{ id: string }>();
-              if (duplicate) {
-                results.push({
-                  id: data.id,
-                  status: 'conflict',
-                  error: 'Esta estação já está cadastrada nesta linha.',
-                });
-                continue;
+              const key = incoming.deletedAt
+                ? `deleted|${incoming.id}`
+                : `${incoming.line.toLowerCase()}|${incoming.code.toLowerCase()}`;
+              if (!incoming.deletedAt) {
+                const duplicate = await db
+                  .prepare(
+                    'SELECT id FROM stations WHERE station_key = ? AND id <> ?',
+                  )
+                  .bind(key, incoming.id)
+                  .first<{ id: string }>();
+                if (duplicate) {
+                  results.push({
+                    id: data.id,
+                    status: 'conflict',
+                    error: 'Esta estação já está cadastrada nesta linha.',
+                  });
+                  continue;
+                }
               }
               await db
                 .prepare(
@@ -98,7 +102,9 @@ export async function POST(request: Request) {
         }
         if (kind === 'stations') {
           const s = validateStation(data);
-          const key = `${s.line.toLowerCase()}|${s.code.toLowerCase()}`;
+          const key = s.deletedAt
+            ? `deleted|${s.id}`
+            : `${s.line.toLowerCase()}|${s.code.toLowerCase()}`;
           await db
             .prepare(
               'INSERT INTO stations (id,station_key,payload) VALUES (?,?,?) ON CONFLICT DO NOTHING',
