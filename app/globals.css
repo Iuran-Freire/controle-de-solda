@@ -704,6 +704,8 @@ td small {
   gap: 20px;
 }
 .station-card {
+  min-width: 0;
+  max-width: 100%;
   padding: 22px;
   border: 1px solid var(--border);
   border-radius: 8px;
@@ -719,9 +721,11 @@ td small {
   color: #718591;
   font-size: 12px;
   margin: 9px 0;
+  overflow-wrap: anywhere;
 }
 .station-card footer {
   display: flex;
+  flex-wrap: wrap;
   gap: 8px;
   margin-top: 20px;
 }
@@ -915,6 +919,19 @@ textarea {
   }
   .station-grid {
     grid-template-columns: 1fr;
+    min-width: 0;
+  }
+  .station-card {
+    padding: 18px;
+  }
+  .station-card footer {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .station-card footer button {
+    width: 100%;
+    min-width: 0;
+    padding-inline: 8px;
   }
   .fields {
     grid-template-columns: 1fr;
