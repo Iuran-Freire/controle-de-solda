@@ -4,10 +4,18 @@
   "files.encoding": "utf8",
   "files.exclude": {
     "**/.next": true,
+    "**/.openai": true,
     "**/.vinext": true,
+    "**/.vscode": true,
     "**/.wrangler": true,
     "**/dist": true,
     "**/node_modules": true
+  },
+  "explorer.fileNesting.enabled": true,
+  "explorer.fileNesting.expand": false,
+  "explorer.fileNesting.patterns": {
+    "package.json": ".env.example, .gitignore, .oxfmt*, .oxlint*, components.json, drizzle.config.ts, next-env.d.ts, next.config.ts, package-lock.json, tsconfig.json, vite.config.ts, wrangler*.json",
+    "README.md": "AGENTS.md, CLOUDFLARE.md"
   },
   "search.exclude": {
     "**/.next": true,
