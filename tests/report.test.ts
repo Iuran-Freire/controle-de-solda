@@ -4,8 +4,8 @@ import {
   reportEnd,
   reportRows,
   type ReportFilter,
-} from '../src/domain/inspection/report';
-import type { Inspection, LocalRow } from '../src/domain/inspection/types';
+} from '../shared/domain/inspection/report';
+import type { Inspection, LocalRow } from '../shared/domain/inspection/types';
 const filter: ReportFilter = {
   start: '2026-09-28',
   end: '2026-10-04',

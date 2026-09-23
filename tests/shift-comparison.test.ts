@@ -4,12 +4,12 @@ import {
   shiftComparisons,
   momentValue,
   difference,
-} from '../src/domain/inspection/shift-comparison';
+} from '../shared/domain/inspection/shift-comparison';
 import {
   DEFAULT_LIMITS,
   type Inspection,
   type LocalRow,
-} from '../src/domain/inspection/types';
+} from '../shared/domain/inspection/types';
 const make = (changes: Partial<Inspection> = {}): LocalRow<Inspection> => {
   const data: Inspection = {
     id: crypto.randomUUID(),

@@ -26,13 +26,16 @@ Acesse a URL informada no terminal. Tarefas também disponíveis no menu Termina
 ## Estrutura
 
 ```text
-app/                       Entradas HTTP, layout, estilos e API /api/sync
-src/presentation/          Telas do controle de solda
-src/application/           Estado, casos de uso e geração de relatórios
-src/domain/                Tipos, validação, critérios e cálculos puros
-src/infrastructure/        IndexedDB, sincronização e acesso ao Cloudflare D1
-components/ui/             Primitivos acessíveis shadcn compartilhados
-db/schema.ts               Esquema Drizzle
+frontend/presentation/     Telas do controle de solda
+frontend/application/      Estado, casos de uso e geração de relatórios
+frontend/infrastructure/   IndexedDB, sincronização e recursos do navegador
+frontend/components/ui/    Primitivos acessíveis shadcn
+frontend/styles/           Estilos globais
+backend/api/               Implementação da API de sincronização
+backend/infrastructure/    Acesso ao Cloudflare D1
+backend/db/                 Esquema e configuração do banco
+shared/domain/             Tipos, validação, critérios e cálculos puros
+app/                       Adaptadores mínimos exigidos pelo framework
 drizzle/                   Migrações versionadas
 public/                    Manifesto PWA e ícone
 scripts/                   Preparação offline e testes
@@ -41,16 +44,15 @@ scripts/                   Preparação offline e testes
 ### Dependências entre camadas
 
 ```text
-app → presentation → application → infrastructure
-                 ↘       ↓
-                     domain
+app → frontend → shared
+  ↘
+   backend → shared
 ```
 
-- `domain` contém as regras que podem ser testadas sem navegador ou banco.
-- `application` coordena os casos de uso, o estado compartilhado e os relatórios.
-- `infrastructure` implementa armazenamento local, sincronização e banco central.
-- `presentation` contém as telas e depende dos casos de uso expostos por `application`.
-- `app` adapta as entradas do framework: página principal e rota HTTP de sincronização.
+- `frontend` reúne telas, componentes, estado e armazenamento local do navegador.
+- `backend` reúne a API, o acesso ao D1 e o esquema do banco central.
+- `shared` contém regras e tipos usados nos dois lados, sem depender do navegador ou do Cloudflare.
+- `app` contém somente os arquivos de entrada exigidos pelo framework e encaminha cada entrada para a camada correta.
 
 ## Stack efetivamente usada
 

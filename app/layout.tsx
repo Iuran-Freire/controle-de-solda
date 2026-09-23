@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import { env } from 'cloudflare:workers';
-import './globals.css';
+import '../frontend/styles/globals.css';
 const baseMetadata: Metadata = {
   title: 'Inventus Power | Controle de Solda',
   description:

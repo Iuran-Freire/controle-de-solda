@@ -1,0 +1,487 @@
+'use client';
+import { useState, useEffect, useRef, type SubmitEvent } from 'react';
+import { Factory, Pencil, QrCode, Plus, Printer, Trash2, X } from 'lucide-react';
+import QRCode from 'qrcode';
+import Image from 'next/image';
+import { Button } from '@/frontend/components/ui/button';
+import { Input } from '@/frontend/components/ui/input';
+import { Textarea } from '@/frontend/components/ui/textarea';
+import { Panel, Empty, SyncBadge } from './shared';
+import {
+  DEFAULT_LIMITS,
+  type Station,
+  type LocalRow,
+} from '@/shared/domain/inspection/types';
+import { validateStation } from '@/shared/domain/inspection/validation';
+import {
+  CHECK_DESCRIPTIONS,
+  stationCheckDescriptions,
+  type CheckDescriptions,
+} from '@/shared/domain/inspection/check-descriptions';
+import {
+  addStation,
+  deleteStation,
+  updateStation,
+} from '@/frontend/application/inspection/inspection-storage';
+export function Stations({
+  stations,
+  onSaved,
+  onInspect,
+}: {
+  stations: LocalRow<Station>[];
+  onSaved: () => Promise<void>;
+  onInspect: (id: string) => void;
+}) {
+  const [adding, setAdding] = useState(false),
+    [editing, setEditing] = useState<Station>(),
+    [qr, setQr] = useState<Station>(),
+    [error, setError] = useState(''),
+    [busy, setBusy] = useState(false);
+  async function submit(e: SubmitEvent<HTMLFormElement>) {
+    e.preventDefault();
+    setBusy(true);
+    setError('');
+    const form = e.currentTarget;
+    const f = new FormData(form);
+    try {
+      const s = validateStation({
+        id: editing?.id ?? crypto.randomUUID(),
+        revision: editing?.revision ?? 1,
+        line: f.get('line'),
+        code: f.get('code'),
+        model: f.get('model'),
+        instrument: f.get('instrument'),
+        approvedBy: f.get('approvedBy'),
+        limits: {
+          min: Number(f.get('min')),
+          max: Number(f.get('max')),
+          resistance: Number(f.get('resistance')),
+          voltage: Number(f.get('voltage')),
+        },
+        checks: Object.fromEntries(
+          (Object.keys(CHECK_DESCRIPTIONS) as (keyof CheckDescriptions)[]).map(
+            (key) => [key, f.get(`check-${key}`)],
+          ),
+        ),
+        createdAt: editing?.createdAt ?? new Date().toISOString(),
+      });
+      if (editing) await updateStation(s);
+      else await addStation(s);
+      await onSaved();
+      setAdding(false);
+      setEditing(undefined);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'Falha no cadastro');
+    } finally {
+      setBusy(false);
+    }
+  }
+  async function remove(station: Station) {
+    const confirmed = window.confirm(
+      `Excluir a estação ${station.line} · ${station.code}?\n\nEla deixará de aparecer em todos os dispositivos após a sincronização. As inspeções já registradas serão preservadas.`,
+    );
+    if (!confirmed) return;
+    setBusy(true);
+    setError('');
+    try {
+      await deleteStation(station.id);
+      await onSaved();
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'Falha ao excluir a estação.');
+    } finally {
+      setBusy(false);
+    }
+  }
+  return (
+    <>
+      <div className="toolbar no-print" style={{ marginBottom: 22 }}>
+        <Button
+          className="action"
+          onClick={() => {
+            setEditing(undefined);
+            setAdding(!adding);
+          }}
+        >
+          <Plus />
+          Cadastrar estação
+        </Button>
+      </div>
+      {adding && (
+        <Panel title={editing ? 'Editar estação' : 'Cadastro de estação'}>
+          <form
+            key={editing?.id ?? 'new'}
+            className="panel-body"
+            onSubmit={submit}
+          >
+            <p className="notice amber">
+              Os valores iniciais foram transcritos das fotos. Confira os
+              critérios e as unidades com a qualidade antes de usar o cadastro.
+            </p>
+            <div className="fields">
+              {[
+                ['line', 'Linha', 'Linha 02'],
+                ['code', 'Posto', 'Soldagem Inlet'],
+                ['model', 'Modelo do formulário', 'LG 24W'],
+                [
+                  'instrument',
+                  'Nº do instrumento de medição (se disponível)',
+                  'Identificação patrimonial',
+                ],
+                [
+                  'approvedBy',
+                  'Responsável pela configuração (se informado)',
+                  'Nome / matrícula',
+                ],
+              ].map(([name, label, placeholder]) => (
+                <label className="field" key={name}>
+                  {label}
+                  <Input
+                    required={name !== 'instrument' && name !== 'approvedBy'}
+                    name={name}
+                    maxLength={160}
+                    placeholder={placeholder}
+                    defaultValue={
+                      editing?.[
+                        name as keyof Pick<
+                          Station,
+                          | 'line'
+                          | 'code'
+                          | 'model'
+                          | 'instrument'
+                          | 'approvedBy'
+                        >
+                      ]
+                    }
+                  />
+                </label>
+              ))}
+              {[
+                ['min', 'Temperatura mínima (°C)'],
+                ['max', 'Temperatura máxima (°C)'],
+                ['resistance', 'Resistência máxima (Ω)'],
+                ['voltage', 'Tensão residual máxima (mV)'],
+              ].map(([name, label]) => (
+                <label className="field" key={name}>
+                  {label}
+                  <Input
+                    required
+                    type="number"
+                    name={name}
+                    min="0"
+                    max="2000"
+                    step="0.01"
+                    defaultValue={
+                      editing?.limits[name as keyof typeof DEFAULT_LIMITS] ??
+                      DEFAULT_LIMITS[name as keyof typeof DEFAULT_LIMITS]
+                    }
+                  />
+                </label>
+              ))}
+            </div>
+            <div className="separator" />
+            <h3>Textos que aparecem no checklist</h3>
+            <p className="notice amber">
+              Escreva cada item como uma instrução curta para o inspetor. Nos
+              itens 3, 4 e 5, informe como realizar a medição; os limites
+              cadastrados acima aparecerão separadamente e serão usados no
+              resultado automático.
+            </p>
+            <div className="fields">
+              {(
+                [
+                  [
+                    'physical',
+                    '1 · Inspeção visual do equipamento',
+                    'Informe quais partes devem ser verificadas, como cabo, ponta e esponja.',
+                  ],
+                  [
+                    'solder',
+                    '2 · Validade do material',
+                    'Informe qual material deve ter a validade conferida.',
+                  ],
+                  [
+                    'resistance',
+                    '3 · Medição de resistência',
+                    'Explique entre quais pontos a resistência deve ser medida.',
+                  ],
+                  [
+                    'voltage',
+                    '4 · Medição de tensão residual',
+                    'Explique entre quais pontos a tensão deve ser medida.',
+                  ],
+                  [
+                    'temperature',
+                    '5 · Medição de temperatura',
+                    'Informe onde deve ser medida a temperatura do ferro de solda.',
+                  ],
+                ] as const
+              ).map(([key, label, help]) => (
+                <label className="field" key={key}>
+                  <strong>{label}</strong>
+                  <span className="draft-note">{help}</span>
+                  <Textarea
+                    required
+                    name={`check-${key}`}
+                    maxLength={500}
+                    rows={3}
+                    aria-label={`Texto do item ${label}`}
+                    defaultValue={stationCheckDescriptions(editing)[key]}
+                  />
+                </label>
+              ))}
+            </div>
+            {error && (
+              <p className="inline-error" role="alert">
+                {error}
+              </p>
+            )}
+            <div className="form-footer">
+              <p>
+                O posto identifica a estação dentro da linha. Campos não
+                informados ficam pendentes.
+              </p>
+              <div className="toolbar">
+                {editing && (
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    onClick={() => {
+                      setEditing(undefined);
+                      setAdding(false);
+                    }}
+                  >
+                    Cancelar
+                  </Button>
+                )}
+                <Button type="submit" disabled={busy} className="action">
+                  {busy
+                    ? 'Salvando…'
+                    : editing
+                      ? 'Salvar alterações'
+                      : 'Salvar estação'}
+                </Button>
+              </div>
+            </div>
+          </form>
+        </Panel>
+      )}
+      {qr ? (
+        <Panel
+          title={`Etiqueta · ${qr.code}`}
+          aside={
+            <Button
+              variant="ghost"
+              aria-label="Fechar etiqueta"
+              onClick={() => setQr(undefined)}
+            >
+              <X />
+            </Button>
+          }
+        >
+          <StationQR station={qr} />
+        </Panel>
+      ) : null}
+      {!stations.length && !adding ? (
+        <Empty
+          title="Cadastre a primeira estação"
+          text="Organize os equipamentos por linha. Cada estação terá um formulário e seu próprio QR Code."
+        />
+      ) : (
+        <div className="station-grid">
+          {stations.map((s) => (
+            <article className="station-card" key={s.id}>
+              <header>
+                <span className="station-symbol">
+                  <Factory size={22} />
+                </span>
+                <SyncBadge status={s.status} />
+              </header>
+              <p>{s.data.line}</p>
+              <h2>{s.data.code}</h2>
+              <p>
+                Modelo: {s.data.model} · Instrumento:{' '}
+                {s.data.instrument || 'Pendente de identificação'}
+              </p>
+              <div className="separator" />
+              <p>
+                Temperatura{' '}
+                <strong>
+                  {s.data.limits.min}–{s.data.limits.max} °C
+                </strong>
+              </p>
+              <p>
+                {s.data.approvedBy
+                  ? `Configurado por ${s.data.approvedBy}`
+                  : 'Responsável pela configuração: não informado'}
+              </p>
+              {(!s.data.instrument || !s.data.approvedBy) && (
+                <p className="status warn">
+                  Cadastro inicial · dados pendentes
+                </p>
+              )}
+              <footer>
+                <Button variant="outline" onClick={() => onInspect(s.id)}>
+                  Verificar
+                </Button>
+                <Button variant="ghost" onClick={() => setQr(s.data)}>
+                  <QrCode />
+                  Etiqueta QR
+                </Button>
+                <Button
+                  variant="ghost"
+                  onClick={() => {
+                    setEditing(s.data);
+                    setAdding(true);
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                  }}
+                >
+                  <Pencil /> Editar
+                </Button>
+                <Button
+                  variant="ghost"
+                  disabled={busy}
+                  onClick={() => void remove(s.data)}
+                >
+                  <Trash2 /> Excluir
+                </Button>
+              </footer>
+            </article>
+          ))}
+        </div>
+      )}
+    </>
+  );
+}
+function StationQR({ station }: { station: Station }) {
+  const [image, setImage] = useState(''),
+    [link, setLink] = useState('');
+  useEffect(() => {
+    const url = `${location.origin}/#station=${encodeURIComponent(station.id)}`;
+    void QRCode.toDataURL(url, {
+      width: 260,
+      margin: 3,
+      errorCorrectionLevel: 'M',
+    })
+      .then((value) => {
+        setImage(value);
+        setLink(url);
+      })
+      .catch(() =>
+        setLink('Não foi possível gerar a etiqueta. Tente novamente.'),
+      );
+  }, [station]);
+  return (
+    <div className="qr-card">
+      <p className="eyebrow">INVENTUS POWER · CONTROLE DE SOLDA</p>
+      <h2>
+        {station.line} · {station.code}
+      </h2>
+      {image && (
+        <Image
+          unoptimized
+          src={image}
+          width={260}
+          height={260}
+          alt={`QR Code da estação ${station.code}`}
+        />
+      )}
+      <p>Abra o aplicativo e escaneie para verificar.</p>
+      <p className="draft-note">Sem câmera? Selecione a estação manualmente.</p>
+      <code>{link}</code>
+      <div
+        className="toolbar no-print"
+        style={{ justifyContent: 'center', marginTop: 20 }}
+      >
+        <Button variant="outline" onClick={() => window.print()}>
+          <Printer />
+          Imprimir etiqueta
+        </Button>
+      </div>
+    </div>
+  );
+}
+export function Scanner({
+  onScan,
+  onClose,
+}: {
+  onScan: (id: string) => void;
+  onClose: () => void;
+}) {
+  const video = useRef<HTMLVideoElement>(null);
+  const [error, setError] = useState('');
+  useEffect(() => {
+    let stopped = false;
+    const videoElement = video.current;
+    let controls: { stop: () => void } | undefined;
+    void import('@zxing/browser')
+      .then(async ({ BrowserQRCodeReader }) => {
+        const reader = new BrowserQRCodeReader();
+        const c = await reader.decodeFromVideoDevice(
+          undefined,
+          videoElement!,
+          (result) => {
+            if (result && !stopped) {
+              try {
+                const url = new URL(result.getText());
+                const id = new URLSearchParams(url.hash.slice(1)).get(
+                  'station',
+                );
+                if (!id) throw new Error();
+                stopped = true;
+                controls?.stop();
+                onScan(id);
+              } catch {
+                setError('Este QR Code não identifica uma estação.');
+              }
+            }
+          },
+        );
+        controls = c;
+        if (stopped) c.stop();
+      })
+      .catch(() =>
+        setError(
+          'Não foi possível acessar a câmera. Permita o acesso ou selecione a estação manualmente.',
+        ),
+      );
+    return () => {
+      stopped = true;
+      controls?.stop();
+      const stream = videoElement?.srcObject as MediaStream | null;
+      stream?.getTracks().forEach((t) => t.stop());
+    };
+  }, [onScan]);
+  return (
+    <Panel
+      title="Ler QR Code"
+      aside={
+        <Button variant="ghost" onClick={onClose} aria-label="Fechar câmera">
+          <X />
+        </Button>
+      }
+    >
+      <div className="panel-body">
+        <video
+          ref={video}
+          muted
+          playsInline
+          style={{
+            width: '100%',
+            maxHeight: 350,
+            background: '#123348',
+            borderRadius: 8,
+          }}
+        />
+        {error && (
+          <p className="inline-error" role="alert">
+            {error}
+          </p>
+        )}
+        <p className="subtitle">
+          Aponte para a etiqueta. A estação precisa estar disponível neste
+          aparelho para uso offline.
+        </p>
+      </div>
+    </Panel>
+  );
+}

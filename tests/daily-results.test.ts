@@ -1,11 +1,11 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { dailyResults } from '../src/domain/inspection/daily-results';
+import { dailyResults } from '../shared/domain/inspection/daily-results';
 import {
   DEFAULT_LIMITS,
   type Inspection,
   type LocalRow,
-} from '../src/domain/inspection/types';
+} from '../shared/domain/inspection/types';
 function row(
   id: string,
   changes: Partial<Inspection> = {},

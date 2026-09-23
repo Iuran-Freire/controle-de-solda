@@ -1,11 +1,11 @@
 import { readFileSync, writeFileSync, mkdirSync } from 'node:fs';
-import { createReportPdf } from '../src/application/reporting/report-pdf';
+import { createReportPdf } from '../frontend/application/reporting/report-pdf';
 import {
   DEFAULT_LIMITS,
   type Inspection,
   type LocalRow,
   type Station,
-} from '../src/domain/inspection/types';
+} from '../shared/domain/inspection/types';
 const station: Station = {
   id: 'teste',
   line: 'Linha 2',
