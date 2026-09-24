@@ -14,6 +14,9 @@ Piloto para digitalizar a verificação diária das estações de solda e a cart
 
 Requer Node.js 22.13 ou superior. Abra esta pasta no VS Code.
 
+Ao trocar de computador, use o contexto pronto em
+[`docs/PROMPT-NOVA-MAQUINA.md`](docs/PROMPT-NOVA-MAQUINA.md).
+
 ```sh
 npm install
 npm run db:generate
