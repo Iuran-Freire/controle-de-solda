@@ -20,6 +20,7 @@ import {
   ArrowUpRight,
   CloudUpload,
   TriangleAlert,
+  Download,
 } from "lucide-react";
 import { Button } from "@/frontend/components/ui/button";
 import { NativeSelect } from "@/frontend/components/ui/native-select";
@@ -30,6 +31,7 @@ import { Stations, Scanner } from "./stations";
 import { HistoryView, InspectionTable } from "./history";
 import { ControlCharts } from "./control-charts";
 import { SyncView } from "./sync-view";
+import { InstallApp } from "./install-app";
 import { Panel } from "./shared";
 import { localDate } from "@/shared/domain/inspection/types";
 import { setting, setSetting } from "@/frontend/application/inspection/inspection-storage";
@@ -40,6 +42,7 @@ type View =
   | "charts"
   | "stations"
   | "sync"
+  | "install"
   | "settings";
 const NAV = [
   { id: "overview", label: "Visão geral", icon: LayoutDashboard },
@@ -48,6 +51,7 @@ const NAV = [
   { id: "charts", label: "Resultados e I-MR", icon: Activity },
   { id: "stations", label: "Estações", icon: Factory },
   { id: "sync", label: "Sincronização", icon: RefreshCw },
+  { id: "install", label: "Instalar aplicativo", icon: Download },
   { id: "settings", label: "Configurações", icon: Settings2 },
 ] as const;
 const descriptions: Record<View, string> = {
@@ -57,6 +61,7 @@ const descriptions: Record<View, string> = {
   charts: "Checks por dia e turno, medições e cartas de controle por posto.",
   stations: "Organize os equipamentos e gere suas etiquetas de identificação.",
   sync: "Do aparelho para a base central, com confirmação de recebimento.",
+  install: "Adicione o Controle de Solda ao Android ou ao Windows.",
   settings: "Prepare este aparelho para a rotina de inspeção.",
 };
 export function Workspace() {
@@ -492,6 +497,12 @@ export function Workspace() {
             <ControlCharts rows={state.inspections} stations={state.stations} />
           )}
           {view === "sync" && <SyncView state={state} />}
+          {view === "install" && (
+            <InstallApp
+              offlineReady={state.offlineReady}
+              stationCount={state.stations.length}
+            />
+          )}
           {view === "settings" && (
             <>
               <Panel title="Identificação neste aparelho">

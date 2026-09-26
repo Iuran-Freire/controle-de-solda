@@ -80,6 +80,12 @@ npm start
 
 O pós-build gera o service worker com todos os scripts e estilos compilados. Abra a versão de produção via HTTPS (ou localhost) com conexão antes da inspeção. Aguarde a preparação e sincronize cadastros. Depois, o app pode abrir sem rede e salvar novas inspeções. A navegação usa estado local e QR com fragmento `#station=...`, evitando buscar uma página por estação. Câmera requer permissão e contexto seguro. Todo aparelho precisa preparar seu próprio armazenamento.
 
+Na opção **Instalar aplicativo**, use o botão apresentado pelo navegador. No
+Android, também é possível usar o menu do Chrome e escolher **Instalar
+aplicativo**. No Windows, use Edge ou Chrome e escolha **Aplicativos → Instalar
+Controle de Solda**. A instalação usa a mesma versão hospedada e não cria um
+banco separado.
+
 Não limpe dados do navegador nem use modo anônimo com pendências. O armazenamento do navegador não substitui backup. Exporte cópia JSON na sincronização e CSV no histórico. Atualizações do app mantêm o banco IndexedDB. Em aparelhos compartilhados, a identificação deve ser conferida a cada inspeção.
 
 ## Limites do piloto / entrada em produção
